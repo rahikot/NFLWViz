@@ -1,0 +1,17 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+
+# IDEs and editors
+.idea
+.project
+.settings/
+.vscode/*
