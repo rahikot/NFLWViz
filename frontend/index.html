@@ -1,16 +1,149 @@
 <!DOCTYPE html>
-
+<html>
 <head>
   <title>NFL Visualization</title>
   <meta charset="utf-8">
   <script type="text/javascript" src="lib/d3.v5.min.js"></script>
+  <script type="text/javascript" src="visualizeGameData.js"></script>
+  <script type="text/javascript" src="lib/d3-simple-slider.js"></script>
 </head>
 
 <body>
   <h1>NFL Play Visualization</h1>
 
-  <script type="text/javascript">
+  <div id="output"></div>
+
+  <script>
+
+    const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+    const width = 960 - margin.left - margin.right;
+    const height = 960 - margin.top - margin.bottom;
+
+    // all svg's should be inside mainSvg
+    const mainSvg = d3.select("#output")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // svg holding name of teams (TODO: add score and which is home/away team)
+    const textSvg = mainSvg.append("svg")
+      .attr("x", 240)
+      .attr("y", 50)
+      .attr("width", 500)
+      .attr("height", 200);
+
+    displayTeams(textSvg, "TB", "DAL")
+
+
+    var sliderGroup = mainSvg.append('g')
+    .attr('transform', 'translate(0,600)');
+
+    var slider = d3.sliderHorizontal()
+        .min(0)
+        .max(3600)
+        .step(1)
+        .width(900)
+        .ticks(5)
+        .tickValues([0, 900, 1800, 2700, 3600])
+        .displayValue(false)
+        .on('onchange', function(val) {
+            d3.select('#value').text(val);
+        });
+
+    sliderGroup.call(slider);
+
+    //Below code somewhat makes a football field but needs fixing
+    /*const fieldWidth = 600;
+    const fieldLength = 940;
+
+    const fieldsvg = d3.select("body")
+      .append("svg")
+      .attr("width", fieldLength)
+      .attr("height", fieldWidth);
+
+    fieldsvg.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", fieldLength)
+      .attr("height", fieldWidth)
+      .attr("fill", "green")
+      .attr("stroke", "white")
+      .attr("stroke-width", 2);
+
+    for (let i = 0; i <= fieldLength; i += 10) {
+      svg.append("line")
+        .attr("x1", i)
+        .attr("y1", 0)
+        .attr("x2", i)
+        .attr("y2", fieldWidth)
+        .attr("stroke", "white")
+        .attr("stroke-width", 0.5);
+    }
+
+    svg.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", fieldLength)
+      .attr("height", fieldWidth / 6)
+      .attr("fill", "white");
+
+    svg.append("rect")
+      .attr("x", 0)
+      .attr("y", fieldWidth - fieldWidth / 6)
+      .attr("width", fieldLength)
+      .attr("height", fieldWidth / 6)
+      .attr("fill", "white");*/
+
+    //Note: this does not include all columns, some were excluded since I didn't see their use
+    d3.csv("week1.csv", function(d) {
+      return {
+        gameId: +d.gameId,
+        playId: +d.playId,
+        frameId: +d.frameId,
+        time: new Date(d.time),
+        team: d.team,
+        playDirection: d.playDirection,
+        x: +d.x,
+        y: +d.y,
+        s: +d.s,
+        a: +d.a,
+        dis: +d.dis,
+        o: +d.o,
+        dir: +d.dir,
+        event: d.event
+      };
+    }).then(function(data) {
+      const dataDictionary = {};
+
+      data.forEach((row, index) => {
+        dataDictionary[index] = row;
+      });
+
+
+      footballData = {}
+      Object.keys(dataDictionary).forEach(rowNumber => {
+        const rowData = dataDictionary[rowNumber]
+        if (rowData.team === "football") {
+          footballData[rowNumber] = rowData
+        }
+      })
+
+      var dataByGameId = {}
+      Object.keys(footballData).forEach(rowNumber => {
+        const rowData = footballData[rowNumber];
+        const gameId = rowData.gameId;
+        if (!dataByGameId[gameId]) {
+          dataByGameId[gameId] = []
+        }
+
+        dataByGameId[gameId].push(rowData);
+      })
+
+    });
 
   </script>
 </body>
+</html>
 
