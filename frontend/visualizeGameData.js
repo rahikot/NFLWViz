@@ -37,6 +37,20 @@ function scaleCoordinates(x, y) {
     return [newX, newY]
 }
 
+function getSliderMapping(playIdToRows) {
+    const keys = Object.keys(playIdToRows);
+    keys.sort((a, b) => a - b);
+
+    const mappedKeys = {}
+    keys.forEach((key, index) => {
+        newKeyValue = index + 1
+        mappedKeys[newKeyValue] = key
+    })
+
+    return mappedKeys
+
+}
+
 function visualizePlay(allPlayData, playNumber, footballObject, interval) {
     if (!allPlayData[playNumber]) {
         throw new Error(`Play # '${playNumber}' could not be found.`)
