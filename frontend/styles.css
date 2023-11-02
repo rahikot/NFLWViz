@@ -1,0 +1,16 @@
+.titleInfo {
+    display: flex;
+    
+}
+title {
+    
+}
+select {
+    padding: 10px;
+    border: 2px solid #002244; 
+    border-radius: 5px;
+    background-color: #FFC20E; 
+
+    font-size: 16px;
+    
+}

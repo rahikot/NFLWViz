@@ -1,4 +1,8 @@
 function displayTeams(textSvg, homeTeam, awayTeam) {
+
+    if (!textSvg.selectAll("text").empty()) {
+        textSvg.selectAll("text").remove()
+    }
     textSvg.append("text")
       .attr("x", 20)
       .attr("y", 25)

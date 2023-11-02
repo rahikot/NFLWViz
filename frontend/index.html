@@ -6,16 +6,23 @@
   <script type="text/javascript" src="lib/d3.v5.min.js"></script>
   <script type="text/javascript" src="visualizeGameData.js"></script>
   <script type="text/javascript" src="lib/d3-simple-slider.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
 <body>
   <h1>NFL Play Visualization</h1>
-
+  <div class = "titleInfo">
+    <select id="gameDropdown"></select>
+    <p id="gameInfo"></p>
+  </div>
+  <p id="playInfo"></p>
+  
+  
   <div id="output"></div>
 
   <script>
 
-    const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     const width = 960 - margin.left - margin.right;
     const height = 960 - margin.top - margin.bottom;
 
@@ -27,9 +34,7 @@
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    const imageUrl = 'NFLField.png'; // Replace with the path to your image file
-
-    // Append the image to the mainSvg
+    const imageUrl = 'NFLField.png';
     image = mainSvg.append("image")
         .attr("xlink:href", imageUrl)
         .attr("x", 0) // X-coordinate of the image
@@ -38,16 +43,17 @@
         .attr("height", 500); // Height of the image
 
 
-      var football = mainSvg.append("rect")
-              .attr("x", 81) // X-coordinate of the square
-              .attr("y", 535) // Y-coordinate of the square
-              .attr("width", 10) // Width of the square
-              .attr("height", 10) // Height of the square
-              .attr("fill", "brown"); // Fill color of the square
+
+
+    var football = mainSvg.append("rect")
+          .attr("x", 81) // X-coordinate of the square
+          .attr("y", 535) // Y-coordinate of the square
+          .attr("width", 10) // Width of the square
+          .attr("height", 10) // Height of the square
+          .attr("fill", "brown"); // Fill color of the square
 
     bottomLeft = [81, 535]
     topRight = [816 , 155]
-
     // svg holding name of teams (TODO: add score and which is home/away team)
     const textSvg = mainSvg.append("svg")
       .attr("x", 240)
@@ -57,24 +63,68 @@
 
     displayTeams(textSvg, "TB", "DAL")
 
-    /* Slider code which may be useful later?
+
     var sliderGroup = mainSvg.append('g')
     .attr('transform', 'translate(0,600)');
 
     var slider = d3.sliderHorizontal()
+        .min(0)
+        .max(3600)
+        .step(1)
         .width(900)
         .ticks(5)
+        .tickValues([0, 900, 1800, 2700, 3600])
         .displayValue(false)
         .on('onchange', function(val) {
             d3.select('#value').text(val);
         });
 
-     //plotTicks(slider, scaledData)
+    sliderGroup.call(slider);
+    //Below code somewhat makes a football field but needs fixing
+    /*const fieldWidth = 600;
+    const fieldLength = 940;
 
-     */
+    const fieldsvg = d3.select("body")
+      .append("svg")
+      .attr("width", fieldLength)
+      .attr("height", fieldWidth);
+
+    fieldsvg.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", fieldLength)
+      .attr("height", fieldWidth)
+      .attr("fill", "green")
+      .attr("stroke", "white")
+      .attr("stroke-width", 2);
+
+    for (let i = 0; i <= fieldLength; i += 10) {
+      svg.append("line")
+        .attr("x1", i)
+        .attr("y1", 0)
+        .attr("x2", i)
+        .attr("y2", fieldWidth)
+        .attr("stroke", "white")
+        .attr("stroke-width", 0.5);
+    }
+
+    svg.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", fieldLength)
+      .attr("height", fieldWidth / 6)
+      .attr("fill", "white");
+
+    svg.append("rect")
+      .attr("x", 0)
+      .attr("y", fieldWidth - fieldWidth / 6)
+      .attr("width", fieldLength)
+      .attr("height", fieldWidth / 6)
+      .attr("fill", "white");*/
 
     //Note: this does not include all columns, some were excluded since I didn't see their use
-    d3.csv("week1.csv", function(d) {
+
+    var weekData = d3.csv("week1.csv", function(d) {
       return {
         gameId: +d.gameId,
         playId: +d.playId,
@@ -91,11 +141,48 @@
         dir: +d.dir,
         event: d.event
       };
-    }).then(function(data) {
+    })
+    
+    var gameData = d3.csv("games.csv")
+    var playData = d3.csv("plays.csv")
+
+    Promise.all([
+      weekData, gameData, playData
+    ]).then(
+      function(values){
+                var error = ""
+                ready("", values[0], values[1], values[2])
+          }
+  
+    );
+
+
+    function ready(error, weekData, gameData, playData) {
+      const dataDictionary = {};
+
+      var gameDatabyId = {}
+      gameData.forEach(rowData => {
+        gameDatabyId[rowData.gameId] = rowData
+      })
+
+      weekData.forEach((row, index) => {
+        dataDictionary[index] = row;
+      })
+      
+      footballData = {}
+      Object.keys(dataDictionary).forEach(rowNumber => {
+        const rowData = dataDictionary[rowNumber]
+        if (rowData.team === "football") {
+          footballData[rowNumber] = rowData
+        }
+      })
+
+      
+      
 
       let dataByGameId = {}
 
-      data.forEach((row, index) => {
+      weekData.forEach((row, index) => {
           const gameId = row.gameId;
           const playId = row.playId;
           newCoordinates = scaleCoordinates(row.x, row.y)
@@ -126,16 +213,59 @@
           dataByGameId[gameId].playIdToRows[playId].push(row);
       });
 
+      // var plays = {}
+      // playData.forEach(rowData => {
+      //   var time = rowData.gameClock.split(":")
+      //   var min = parseInt(time[0], 10) * 60
+      //   var sec = parseInt(time[1], 10)
+      //   var timeSec = min + sec
+      //   rowData.gameClock = timeSec
+      // })
+      // console.log(playData)
+      // playData.sort(function(a,b){
+      //   return a.gameClock - b.gameClock
+      // })
+      // function closestPlay(data, val) {
+      //   return data.reduce((a,b) => {
+      //     return Math.abs(b.gameClock - val) < Math.abs(a.gameClock - val) ? b : a
+      // //   })
+      // }
+
 
       var TBvsDALGame = dataByGameId[2021090900]
       console.log(TBvsDALGame)
-      var playData = TBvsDALGame.playIdToRows
-      console.log(playData)
+      var playDat = TBvsDALGame.playIdToRows
+      console.log(playDat)
       var specificPlays = 480
       var interval = 20
 
-      visualizePlay(playData, specificPlays, football, interval);
-    });
+      visualizePlay(playDat, specificPlays, football, interval);
+
+      
+      // slider.on('onchange', function(val) {
+      //       d3.select('#value').text(val);
+      //       var c = closestPlay(playData, val)
+      //   d3.select("#playInfo").text(c.gameClock)
+      //   });
+      
+      
+      d3.select("#gameDropdown").selectAll('option')
+            .data(gameData)
+            .enter()
+            .append('option')
+            .text(function(d){
+                return d.homeTeamAbbr + " vs. " + d.visitorTeamAbbr
+            })
+            .attr("value", function(d){
+                return d.gameId
+            })
+      
+      d3.select("#gameDropdown").on('change', function() {
+        displayTeams(textSvg, gameDatabyId[d3.select(this).property('value')].homeTeamAbbr,gameDatabyId[d3.select(this).property('value')].visitorTeamAbbr)
+        d3.select("#gameInfo").text( "Season: "+  gameDatabyId[d3.select(this).property('value')].season + " Game Date: "+ gameDatabyId[d3.select(this).property('value')].gameDate + " Game Time: " + gameDatabyId[d3.select(this).property('value')].gameTimeEastern)
+      })
+    }
+    
 
   </script>
 </body>
