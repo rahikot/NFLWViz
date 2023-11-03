@@ -51,48 +51,71 @@ function getSliderMapping(playIdToRows) {
 
 }
 
-function visualizePlay(allPlayData, playNumber, footballObject, interval) {
+function visualizePlayers(playerData, color) {
+    var circles = mainSvg.selectAll("circle").data(playerData, function(d) {
+        return d.jerseyNumber + d.team;
+    });
+
+    circles.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+    
+    circles.enter().append("circle")
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; })
+        .attr("r", 5)
+        .attr("fill", color);
+}
+
+function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awayTeam) {
     if (!allPlayData[playNumber]) {
         throw new Error(`Play # '${playNumber}' could not be found.`)
     }
     playData = allPlayData[playNumber]
+    timeToData = {}
+    playData.forEach((row, index) => {
+        datapointTime = row.time
+        if (!timeToData[datapointTime]) {
+            timeToData[datapointTime] = {}
+            timeToData[datapointTime].homeTeam = []
+            timeToData[datapointTime].awayTeam = []
+            timeToData[datapointTime].football = []
+        }
+        if (row.team === 'football') {
+            timeToData[datapointTime].football.push(row)
+        } else if (row.team === homeTeam) {
+            timeToData[datapointTime].homeTeam.push(row)
+        } else {
+            timeToData[datapointTime].awayTeam.push(row)
+        }
 
-    footballData = playData.filter(item => item.team === 'football')
-    //We can make modifications here to visualize all players
+    })
 
+    var keys = Object.keys(timeToData)
     let index = 0;
 
-    const updateFootballLocation = () => {
-        if (index < playData.length) {
-            const footballData = playData.filter(item => item.team === 'football');
-            if (index < footballData.length) {
-                const data = footballData[index];
-                footballObject.attr("x", data.x).attr("y", data.y);
-                index++;
+    const updateLocation = () => {
+
+        if (index < keys.length) {
+            var currTimeData = keys[index]
+            var value = timeToData[currTimeData]
+            var awayData = value.awayTeam
+            var homeData = value.homeTeam
+            var footballData = value.football
+            if (footballData.length > 1) {
+                throw new Error(`For play # '${playNumber}', multiple (x, y) coordinates for football
+                found at datapoint '${currTimeData}'`)
             }
+            visualizePlayers(homeData, "red")
+            visualizePlayers(awayData, "blue")
+            mainSvg.select(".football").attr("x", footballData[0].x).attr("y", footballData[0].y);
+            index++;
+
         } else {
             clearInterval(interval);
         }
     };
 
-    const intervalID = setInterval(updateFootballLocation, interval);
+    const intervalID = setInterval(updateLocation, interval);
+     mainSvg.selectAll("circle").remove();
 
 }
-
-
-// Function that converts DateTime to seconds. Currently not used
-/*function scaleTimeData(data) {
-    var transformedData = {}
-    var firstDate = data[0].time
-
-    for (const rowNum in data) {
-        const row = data[rowNum];
-        const rowDate = row.time
-        const timeInSeconds = (rowDate - firstDate)/1000
-        transformedData[rowNum] = {
-            ...row,
-            time: timeInSeconds
-        }
-    }
-
-}*/

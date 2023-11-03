@@ -62,11 +62,11 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
 
     var football = mainSvg.append("rect")
-          //.attr("x", 81) // X-coordinate of the square
-          //.attr("y", 535) // Y-coordinate of the square
-          .attr("width", 10) // Width of the square
-          .attr("height", 10) // Height of the square
-          .attr("fill", "brown"); // Fill color of the square
+          .attr("width", 10)
+          .attr("height", 10)
+          .attr("fill", "brown")
+          .attr("class", "football")
+          .style("display", "none")
 
     bottomLeft = [81, 535]
     topRight = [816 , 155]
@@ -95,11 +95,13 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     //Note: this does not include all columns, some were excluded since I didn't see their use
 
     var weekData = d3.csv("week1.csv", function(d) {
+
       return {
         gameId: +d.gameId,
         playId: +d.playId,
         frameId: +d.frameId,
-        time: new Date(d.time),
+        jerseyNumber: +d.jerseyNumber,
+        time: d.time.toString(),
         team: d.team,
         playDirection: d.playDirection,
         x: +d.x,
@@ -158,21 +160,11 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         playDatabyId[rowData.playId] = rowData
           })
       }
-      console.log(playDatabyId)
 
       //weekData
       weekData.forEach((row, index) => {
         dataDictionary[index] = row;
       })
-      
-      footballData = {}
-      Object.keys(dataDictionary).forEach(rowNumber => {
-        const rowData = dataDictionary[rowNumber]
-        if (rowData.team === "football") {
-          footballData[rowNumber] = rowData
-        }
-      })
-
 
 
 
@@ -209,24 +201,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           dataByGameId[gameId].playIdToRows[playId].push(row);
       });
 
-      
-
-
-
-
-      var TBvsDALGame = dataByGameId[2021090900]
-      var playDat = TBvsDALGame.playIdToRows
-      var specificPlays = 480
       var interval = 100
-
-      //visualizePlay(playDat, specificPlays, football, interval);
-
-      
-      // slider.on('onchange', function(val) {
-      //       d3.select('#value').text(val);
-      //       var c = closestPlay(playData, val)
-      //   d3.select("#playInfo").text(c.gameClock)
-      //   });
       
       
       d3.select("#gameDropdown").selectAll('option')
@@ -260,7 +235,8 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           d3.select("#playQuarter").text("Quarter: " + playDatabyId[sliderMapping[value]].quarter)
           d3.select("#playDown").text("Down: " + playDatabyId[sliderMapping[value]].down)
           d3.select("#playScore").text("Score: " + playDatabyId[sliderMapping[value]].preSnapHomeScore +" : " + playDatabyId[sliderMapping[value]].preSnapVisitorScore)
-          visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], football, interval);
+          football.style("display", "block")
+          visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr);
   });
 
 
