@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>NFL Visualization</title>
+  <title style="box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);">NFL Visualization</title>
   <meta charset="utf-8">
   <script type="text/javascript" src="lib/d3.v5.min.js"></script>
   <script type="text/javascript" src="visualizeGameData.js"></script>
@@ -13,12 +14,27 @@
   <h1>NFL Play Visualization</h1>
   <div class = "titleInfo">
     <select id="gameDropdown"></select>
-    <p id="gameInfo"></p>
+    <div class="gameBoxes">
+      <p class="gameTitles">Season</p>
+      <p class="gameStats", id="season"></p>
+    </div>
+    <div class="gameBoxes">
+      <p class="gameTitles">Date</p>
+      <p class="gameStats", id="date"></p>
+    </div>
+    <div class="gameBoxes">
+      <p class="gameTitles">Time</p>
+      <p class="gameStats", id="time"></p>
+    </div>
+   
+    <p class="playStats", id="playNumber"></p>
+    <p class="playStats", id="playQuarter"></p>
+    <p class="playStats", id="playDown"></p>
+    <p class="playStats", id="playScore"></p>
   </div>
-  <p id="playInfo"></p>
   
   
-  <div id="output"></div>
+  <div id="output", style="position: absolute; justify-self: center;"></div>
 
   <script>
 
@@ -119,6 +135,32 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         gameDatabyId[rowData.gameId] = rowData
       })
 
+
+      var defaultGame = gameData[0].gameId
+      var filteredPlayData = playData
+      filteredPlayData = playData.filter((d) => {
+        
+        return d.gameId === defaultGame
+        }
+      )
+      
+      var playDatabyId = {}
+      filteredPlayData.forEach(rowData => {
+        playDatabyId[rowData.playId] = rowData
+      })
+      function filterPlay(filter) {
+        defaultGame = filter
+        filteredPlayData = playData.filter((d) => {
+          return d.gameId === defaultGame
+            }
+          ) 
+        filteredPlayData.forEach(rowData => {
+        playDatabyId[rowData.playId] = rowData
+          })
+      }
+      console.log(playDatabyId)
+
+      //weekData
       weekData.forEach((row, index) => {
         dataDictionary[index] = row;
       })
@@ -167,23 +209,9 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           dataByGameId[gameId].playIdToRows[playId].push(row);
       });
 
-      // var plays = {}
-      // playData.forEach(rowData => {
-      //   var time = rowData.gameClock.split(":")
-      //   var min = parseInt(time[0], 10) * 60
-      //   var sec = parseInt(time[1], 10)
-      //   var timeSec = min + sec
-      //   rowData.gameClock = timeSec
-      // })
-      // console.log(playData)
-      // playData.sort(function(a,b){
-      //   return a.gameClock - b.gameClock
-      // })
-      // function closestPlay(data, val) {
-      //   return data.reduce((a,b) => {
-      //     return Math.abs(b.gameClock - val) < Math.abs(a.gameClock - val) ? b : a
-      // //   })
-      // }
+      
+
+
 
 
       var TBvsDALGame = dataByGameId[2021090900]
@@ -216,7 +244,11 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
       d3.select("#gameDropdown").on('change', function() {
         selectedGameId = d3.select(this).property('value');
         displayTeams(textSvg, gameDatabyId[selectedGameId].homeTeamAbbr,gameDatabyId[selectedGameId].visitorTeamAbbr)
-        d3.select("#gameInfo").text( "Season: "+  gameDatabyId[selectedGameId].season + " Game Date: "+ gameDatabyId[selectedGameId].gameDate + " Game Time: " + gameDatabyId[selectedGameId].gameTimeEastern)
+        d3.select("#season").text(gameDatabyId[selectedGameId].season)
+        d3.select("#date").text("Game Date: "+ gameDatabyId[selectedGameId].gameDate); 
+        
+        d3.select("#time").text("Game Time: " + gameDatabyId[selectedGameId].gameTimeEastern + " EST")
+        filterPlay(selectedGameId)
         sliderMapping = getSliderMapping(dataByGameId[selectedGameId].playIdToRows)
         slider.min(0).max(Object.keys(sliderMapping).length - 1)
         sliderGroup.call(slider);
@@ -224,7 +256,10 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
 
       slider.on('end', function(value) {
-
+          d3.select("#playNumber").text(playDatabyId[sliderMapping[value]].playDescription)
+          d3.select("#playQuarter").text("Quarter: " + playDatabyId[sliderMapping[value]].quarter)
+          d3.select("#playDown").text("Down: " + playDatabyId[sliderMapping[value]].down)
+          d3.select("#playScore").text("Score: " + playDatabyId[sliderMapping[value]].preSnapHomeScore +" : " + playDatabyId[sliderMapping[value]].preSnapVisitorScore)
           visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], football, interval);
   });
 
