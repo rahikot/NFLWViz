@@ -1,16 +1,67 @@
 .titleInfo {
-    display: flex;
+    display: grid;
+    grid-template-rows: auto auto;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1em;
+    
+    /* box-shadow: 0 10px 10px  rgba(0, 0, 0, 0.2); */
+    border-radius: 20px;
+    /* background-color: #fdf0d5;  */
+    
+    
+
     
 }
-title {
+
+h1 {
+    font-family: "San Francisco", Arial, sans-seri
     
 }
 select {
-    padding: 10px;
-    border: 2px solid #002244; 
-    border-radius: 5px;
-    background-color: #FFC20E; 
-
-    font-size: 16px;
+    
+    border: 2px solid #780000; 
+    border-radius: 20px;
+    
+    -webkit-appearance: none; /* For Safari/Chrome */
+    -moz-appearance: none; /* For Firefox */
+    appearance: none; /* For other modern browsers */
+    font-size: 20px;
+    font-family: "San Francisco", Arial, sans-seri;
+    box-shadow: 0 2px 6px  rgba(0, 0, 0, 0.2);
     
 }
+.gameBoxes {
+    border: 2px solid #c1121f;
+    border-radius: 2px;
+    box-shadow: 0 2px 6px  rgba(0, 0, 0, 0.2);
+}
+
+p.gameTitles {
+    color: #c1121f;
+    font-weight: bolder;
+    font-size: 25px; 
+    font-family: "San Francisco", Arial, sans-seri;
+    padding-left: 10px; 
+}
+p.gameStats {
+    color: #003049;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    
+    font-family: "San Francisco", Arial, sans-seri;
+    
+}
+
+.playStats {
+    color: #003049;
+    font-weight: bolder;
+    font-size: 15px;
+    text-align: center;
+    border: 2px solid #669bbc;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px  rgba(0, 0, 0, 0.2);
+    font-family: "San Francisco", Arial, sans-seri;
+    
+  }
+  
