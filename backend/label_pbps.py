@@ -145,4 +145,4 @@ feats = feats[order]
 
 plays_df["predDef"] = lgbm.predict(feats[order])
 plays_df = plays_df.rename(columns={"yardline_100": "yardlineNumber", "qtr" : "quarter", "time":"gameClock", "ydstogo":"yardsToGo", "total_home_score": "preSnapHomeScore", "total_away_score": "preSnapVisitorScore"})
-plays_df.reset_index().drop("index", axis=1).to_csv("backend/data/csv/plays.csv")
+plays_df.reset_index().drop("index", axis=1).to_csv("backend/data/plays.csv")

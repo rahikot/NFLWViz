@@ -52,7 +52,7 @@ def recommend_play(df):
 
 
 if __name__ == "__main__":
-    df = pd.read_csv("backend/data/csv/plays.csv", index_col=0)
+    df = pd.read_csv("backend/data/plays.csv", index_col=0)
     similar_plays = find_similar_scenarios(df, df.iloc[0][["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], 20)
     print(recommend_play(similar_plays))
 

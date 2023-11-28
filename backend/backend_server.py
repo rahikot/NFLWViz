@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/get_play_details', methods=['GET'])
 def get_play_details():
     # Getting JSON data from the request
-    df = pd.read_csv("backend/data/csv/plays.csv", index_col=0)
+    df = pd.read_csv("backend/data/plays.csv", index_col=0)
     request_data = request.args.to_dict()
     
 
