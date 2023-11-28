@@ -8,6 +8,10 @@ import matplotlib.pyplot as plt
 
 
 def find_similar_scenarios(df, play, n):
+    df = df
+    if int(play["down"]) == 4:
+        df = df[df["down"] == 4]
+
     missing_columns = set(df.columns) - set(play.keys())
     for col in missing_columns: 
         play[col] = np.nan
@@ -23,7 +27,14 @@ def find_similar_scenarios(df, play, n):
 
 
 
-def recommend_play(df):
+def recommend_play(df, play):
+    if int(play["down"]) == 4:
+        counted = Counter(df["play_type"])
+        print(counted)
+        play_type  = max(counted, key=counted.get)
+        if play_type != "run" or "pass":
+            return play_type
+
     play_type = 0
     play_direction = 0
     mean_yardage = 0
@@ -53,6 +64,9 @@ def recommend_play(df):
 
 if __name__ == "__main__":
     df = pd.read_csv("backend/data/plays.csv", index_col=0)
-    similar_plays = find_similar_scenarios(df, df.iloc[0][["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], 20)
-    print(recommend_play(similar_plays))
+    play = df[df["down"] == 4].iloc[0]
+  
+    similar_plays = find_similar_scenarios(df, play[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], 150)
+    print(similar_plays)
+    print(recommend_play(similar_plays, play[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]]))
 

@@ -8,10 +8,16 @@ def get_play_details():
     # Getting JSON data from the request
     df = pd.read_csv("backend/data/plays.csv", index_col=0)
     request_data = request.args.to_dict()
+    print(request_data)
+
+    #If 4th down is invoked
+    if int(request_data["down"]) == 4:
+        df = df[df["down"] == 4]
     
 
     similar = find_similar_scenarios(df, pd.Series(request_data), 20)
-    recommendation = recommend_play(similar)
+    print(similar["down"])
+    recommendation = recommend_play(similar, pd.Series(request_data))
     # Example: Fetch play details based on request_data
     # This is a placeholder for your logic to process request_data
     # For demonstration, returning the received data as a mock response
@@ -26,5 +32,5 @@ if __name__ == '__main__':
     offensiveTeam is the team that is currently on offense (the team we want to make recommendations/analysis for)
     """
     # ["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], df[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]
-    # EXAMPLE QUERY: http://127.0.0.1:5000/get_play_details?home_team=SF&away_team=ATL&yardlineNumber=50&quarter=1&down=2&gameClock_minutes=10&gameClock_seconds=15&yardsToGo=45&preSnapHomeScore=7&preSnapVisitorScore=5
+    # EXAMPLE QUERY: http://127.0.0.1:5000/get_play_details?home_team=SF&away_team=ATL&yardlineNumber=50&quarter=1&down=4&gameClock_minutes=10&gameClock_seconds=15&yardsToGo=45&preSnapHomeScore=7&preSnapVisitorScore=5
     app.run(host='127.0.0.1', threaded=True, debug=True)
