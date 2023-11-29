@@ -4,7 +4,11 @@ import nfl_data_py as nfl
 from pprint import pprint
 import pandas as pd
 
-df = nfl.import_pbp_data([2019, 2020], downcast=True, cache=False, alt_path=None)
+# WHOLE DATASET
+#df = nfl.import_pbp_data([i for i in range(1999,2021)], downcast=True, cache=False, alt_path=None)
+
+# IF FOR DEMO/TESTING- ONLY TWO YEARS
+df = nfl.import_pbp_data([i for i in range(2019,2021)], downcast=True, cache=False, alt_path=None)
 
 lgbm = joblib.load('backend/lgbm.pkl')
 

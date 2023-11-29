@@ -6,9 +6,7 @@ import matplotlib.pyplot as plt
 
 
 
-
 def find_similar_scenarios(df, play, n):
-    df = df
     if int(play["down"]) == 4:
         df = df[df["down"] == 4]
 
@@ -24,6 +22,7 @@ def find_similar_scenarios(df, play, n):
     new_df = df.iloc[[i for i in index][1:]]
     new_df["gower_similarity"] = values[1:]
     return new_df.iloc[:-1]
+
 
 
 
@@ -64,7 +63,7 @@ def recommend_play(df, play):
 
 if __name__ == "__main__":
     df = pd.read_csv("backend/data/plays.csv", index_col=0)
-    play = df[df["down"] == 4].iloc[0]
+    play = df[df["down"] == 3].iloc[0]
   
     similar_plays = find_similar_scenarios(df, play[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], 150)
     print(similar_plays)

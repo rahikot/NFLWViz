@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 from similar_plays import recommend_play, find_similar_scenarios
 
 
@@ -16,6 +16,7 @@ def produce_dataframes(df, offensive_team, defensive_team, request_data):
     similar_df_specified = find_similar_scenarios(df_specified, pd.Series(request_data), 20)
     similar_df_defensive = find_similar_scenarios(df_specified_def, pd.Series(request_data), 20)
     similar_df = find_similar_scenarios(df, pd.Series(request_data), 20)
+
     return similar_df, similar_df_specified, similar_df_defensive
 
 def historical_play_types(similar_df, similar_df_specified, similar_df_defensive):
@@ -36,3 +37,9 @@ def historical_play_types(similar_df, similar_df_specified, similar_df_defensive
     temp_df.join(similar_df_defensive.groupby("play_type").mean("yards_gained")["yards_gained"].to_frame("Defense Specific"), how="outer").fillna(0).to_dict()
 
     return {"prob_values" : df_normalized_counts.fillna(0).to_dict(), "mean_yards" : temp_df.join(similar_df_defensive.groupby("play_type").mean("yards_gained")["yards_gained"].to_frame("Defense Specific"), how="outer").fillna(0).to_dict()}
+
+
+def return_gower_values(similar_df, similar_df_specified,similar_df_defensive):
+    print(similar_df["gower_similarity"])
+    return {"All Teams" : sorted(similar_df["gower_similarity"].values.astype(float)), "Specified Team" : sorted(similar_df_specified["gower_similarity"].values.astype(float)), "Defense Specific" : sorted(similar_df_defensive["gower_similarity"].values.astype(float))}
+    
