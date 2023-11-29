@@ -5,6 +5,7 @@ import pandas as  pd
 from stats import *
 import warnings
 warnings.filterwarnings("ignore")
+from collections import Counter
 app = Flask(__name__)
 
 @app.route('/get_play_details', methods=['GET'])
@@ -23,16 +24,17 @@ def get_play_details():
         df = df[df["down"] == 4]
     
     similar_df, similar_df_specified, similar_df_defensive = produce_dataframes(df, offensive_team, defensive_team, request_data)
-    print(similar_df)
+
     recommendation = recommend_play(similar_df, pd.Series(request_data))
-    
+
     
 
     return jsonify({
         "received_data": request_data,
         "recommendation": recommendation,
         "historical_plays" : historical_play_types(similar_df, similar_df_specified, similar_df_defensive),
-        "gower_values" : return_gower_values(similar_df, similar_df_specified, similar_df_defensive)
+        "gower_values" : return_gower_values(similar_df, similar_df_specified, similar_df_defensive),
+        "notify_danger" : notify_danger(similar_df_defensive)
     })
     
 

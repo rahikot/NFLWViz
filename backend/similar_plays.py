@@ -40,12 +40,9 @@ def find_similar_scenarios(df, play, n):
     return new_df.iloc[:-1]
 
 
-
-
 def recommend_play(df, play):
     if int(play["down"]) == 4:
         counted = Counter(df["play_type"])
-        print(counted)
         play_type  = max(counted, key=counted.get)
         if play_type != "run" or "pass":
             return play_type
