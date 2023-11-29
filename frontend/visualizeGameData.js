@@ -100,6 +100,14 @@ function populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTea
           .attr("class", "text-styling")
       });
 
+    homeTeam.append("ellipse")
+        .attr("id", "homePossession")
+        .attr("cx", homeTeam.node().getBBox().width - 55)
+        .attr("cy", 25)
+        .attr("fill", "brown")
+        .classed("ellipse", true)
+        .style("display", "none");
+
     xCoordinate = 135;
 
     if (awayTeamAbbr && awayTeamAbbr.length === 2) {
@@ -118,6 +126,14 @@ function populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTea
       .attr("y", 35)
       .text("0")
       .attr("class", "text-styling")
+
+    awayTeam.append("ellipse")
+        .attr("id", "awayPossession")
+        .attr("cx", 55)
+        .attr("cy", 25)
+        .attr("fill", "brown")
+        .classed("ellipse", true)
+        .style("display", "none")
 
     homeTeam.select("rect").attr("fill", homeColor)
     awayTeam.select("rect").attr("fill", awayColor)
@@ -139,19 +155,22 @@ function populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTea
 
     gameInfo.append("text")
       .attr("id", "Down")
-      .attr("x", 265)
+      .attr("x", gameInfo.node().getBBox().width - 122)
       .attr("y", 30)
-      .text("1st Down")
+      .text("1st & 10")
       .attr("class", "text-styling")
 
     mainSvg.selectAll("circle").remove();
 
 }
 
-function updateScoreBoard(mainSvg, playData) {
+function updateScoreBoard(mainSvg, playData, homeTeamAbbr, awayTeamAbbr) {
     const homeTeam = mainSvg.select("#homeTeam");
     const awayTeam = mainSvg.select("#awayTeam");
     const gameInfo = mainSvg.select("#gameInfo");
+
+    homeTeam.select("#homePossession").style("display", "none");
+    awayTeam.select("#awayPossession").style("display", "none");
 
     const ordinalMap = {
         "1": "1st",
@@ -161,14 +180,33 @@ function updateScoreBoard(mainSvg, playData) {
     };
 
     ordinalQuarter = ordinalMap[playData.quarter]
-    ordinalDown = ordinalMap[playData.down] + " Down"
+    downText = ordinalMap[playData.down] + " & " + playData.yardsToGo
+    const absoluteYardNumber = parseInt(playData.absoluteYardlineNumber)
+    const yardsToGo = parseInt(playData.yardsToGo)
+
+    if ((absoluteYardNumber - yardsToGo === 10) || (absoluteYardNumber + yardsToGo === 110)) {
+        downText = ordinalMap[playData.down] + " & Goal"
+    }
+
+    const invisibleText = gameInfo.append("text")
+        .attr("class", "text-styling")
+        .attr("visibility", "hidden")
+        .text(downText);
+    const textWidth = invisibleText.node().getBBox().width;
 
     gameInfo.select("#Quarter").text(ordinalQuarter)
     gameInfo.select("#GameClock").text(playData.gameClock)
-    gameInfo.select("#Down").text(ordinalDown)
+    gameInfo.select("#Down").attr("x", gameInfo.node().getBBox().width - textWidth - 10)
+    gameInfo.select("#Down").text(downText)
 
     homeTeam.select("#homeScore").text(playData.preSnapHomeScore)
     awayTeam.select("#awayScore").text(playData.preSnapVisitorScore)
+
+    if (playData.possessionTeam === homeTeamAbbr) {
+        homeTeam.select("#homePossession").style("display", "block");
+    } else {
+        awayTeam.select("#awayPossession").style("display", "block");
+    }
 }
 
 function decrementClock(mainSvg) {
@@ -194,6 +232,59 @@ function padZero(number) {
 
 function getTeamColor(teamAbbr) {
   return getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${teamAbbr}`) || "blue";
+}
+
+function addMarkers(mainSvg, playData, homeTeam, awayTeam) {
+
+    d3.select("#scrimmage").remove();
+    d3.select("#firstDown").remove();
+
+    quarter = playData.quarter
+    possessionTeam = playData.possessionTeam
+
+    const absoluteYardNumber = parseInt(playData.absoluteYardlineNumber)
+    const yardsToGo = parseInt(playData.yardsToGo)
+    const yardlineSide = playData.yardlineSide
+
+    if (yardlineSide === possessionTeam) {
+        if (absoluteYardNumber < 60) {
+            firstDownMarker = absoluteYardNumber + yardsToGo
+        } else {
+            firstDownMarker = absoluteYardNumber - yardsToGo
+        }
+    } else {
+        if (absoluteYardNumber < 60) {
+            firstDownMarker = absoluteYardNumber - yardsToGo
+        } else if (absoluteYardNumber === 60 && possessionTeam === homeTeam) {
+            firstDownMarker = absoluteYardNumber - yardsToGo
+        } else if (absoluteYardNumber === 60 && possessionTeam === homeTeam) {
+            firstDownMarker = absoluteYardNumber + yardsToGo
+        } else {
+            firstDownMarker = absoluteYardNumber + yardsToGo
+        }
+    }
+
+    const lineOfScrimmage = scaleCoordinates(parseInt(playData.absoluteYardlineNumber), 0)[0];
+    firstDownMarker = scaleCoordinates(firstDownMarker, 0)[0]
+
+    mainSvg.append("rect")
+        .attr("id", "scrimmage")
+        .attr("x", lineOfScrimmage)
+        .attr("y", 164)
+        .attr("width", 1)
+        .attr("height", 372)
+        .attr("fill", "blue")
+
+    if ((absoluteYardNumber - yardsToGo !== 10) && (absoluteYardNumber + yardsToGo !== 110)) {
+        mainSvg.append("rect")
+            .attr("id", "firstDown")
+            .attr("x", firstDownMarker)
+            .attr("y", 164)
+            .attr("width", 1)
+            .attr("height", 372)
+            .attr("fill", "yellow")
+    }
+
 }
 
 function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awayTeam) {
