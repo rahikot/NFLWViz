@@ -3,10 +3,13 @@ from similar_plays import recommend_play, find_similar_scenarios
 import pandas as  pd
 #from stats import specify_defense, specify_team, produce_dataframes, historical_play_types
 from stats import *
+import warnings
+warnings.filterwarnings("ignore")
 app = Flask(__name__)
 
 @app.route('/get_play_details', methods=['GET'])
 def get_play_details():
+    
     # Getting JSON data from the request
     df = pd.read_csv("backend/data/plays.csv", index_col=0)
     request_data = request.args.to_dict()
@@ -22,24 +25,16 @@ def get_play_details():
     similar_df, similar_df_specified, similar_df_defensive = produce_dataframes(df, offensive_team, defensive_team, request_data)
     print(similar_df)
     recommendation = recommend_play(similar_df, pd.Series(request_data))
-    # Example: Fetch play details based on request_data
-    # This is a placeholder for your logic to process request_data
-    # For demonstration, returning the received data as a mock response
-    """
+    
+    
+
     return jsonify({
         "received_data": request_data,
         "recommendation": recommendation,
         "historical_plays" : historical_play_types(similar_df, similar_df_specified, similar_df_defensive),
         "gower_values" : return_gower_values(similar_df, similar_df_specified, similar_df_defensive)
     })
-    """
-
-    return {
-        "received_data": request_data,
-        "recommendation": recommendation,
-        "historical_plays" : historical_play_types(similar_df, similar_df_specified, similar_df_defensive),
-        "gower_values" : return_gower_values(similar_df, similar_df_specified, similar_df_defensive)
-    }
+    
 
 if __name__ == '__main__':
     """ WHAT I REQUIRE:

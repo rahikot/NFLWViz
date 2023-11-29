@@ -9,18 +9,34 @@ import matplotlib.pyplot as plt
 def find_similar_scenarios(df, play, n):
     if int(play["down"]) == 4:
         df = df[df["down"] == 4]
+            
+    play = pd.DataFrame([play])
 
-    missing_columns = set(df.columns) - set(play.keys())
+    dtype_dict = {
+        'yardlineNumber': 'float64',
+        'quarter': 'float64',
+        'down': 'float64',
+        'gameClock_minutes': 'int64',
+        'gameClock_seconds': 'int64',
+        'yardsToGo': 'float64',
+        'preSnapHomeScore': 'float64',
+        'preSnapVisitorScore': 'float64'
+    }
+
+    play = play.astype(dtype_dict)
+
+    missing_columns = set(df.columns) - set(play.columns)
     for col in missing_columns: 
         play[col] = np.nan
+    
+        
+    results = gower.gower_topn(play[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], df[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], n=n + 1)
 
-    df.loc[-1] = play
-
-    results = gower.gower_topn(df.iloc[-1:,:][["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], df[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], n=n + 1)
     index = results["index"]
     values = results["values"]
     new_df = df.iloc[[i for i in index][1:]]
     new_df["gower_similarity"] = values[1:]
+
     return new_df.iloc[:-1]
 
 
@@ -37,6 +53,7 @@ def recommend_play(df, play):
     play_type = 0
     play_direction = 0
     mean_yardage = 0
+    
     mean_yardage = df.groupby("play_type").mean("yards_gained")["yards_gained"][["pass", "run"]].values
     std_yardage = df[["play_type", "yards_gained"]].groupby("play_type").std().iloc[1:].values.reshape(1,-1)[0][-2:]
     
