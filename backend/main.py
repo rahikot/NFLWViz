@@ -2,7 +2,7 @@ import json
 import os
 
 # Function that reads a given directory of JSON files with no extra preprocessing
-def readFolderDirectoty(directory):
+def readFolderDirectory(directory):
     if not (os.path.exists(directory)) or not (os.path.isdir(directory)):
         raise ValueError(f"{directory} is invalid")
 
@@ -31,8 +31,8 @@ def readFolderDirectoty(directory):
 if __name__ == "__main__":
     regSeasonDataDirectory = os.path.dirname(os.path.realpath(__file__)) + '/data/nfl_pbps-master/reg'
     postSeasonDataDirectory = os.path.dirname(os.path.realpath(__file__)) + '/data/nfl_pbps-master/post'
-    regData = readFolderDirectoty(regSeasonDataDirectory) #5520 games
-    postSeasonData = readFolderDirectoty(postSeasonDataDirectory) #230 games
+    regData = readFolderDirectory(regSeasonDataDirectory) #5520 games
+    postSeasonData = readFolderDirectory(postSeasonDataDirectory) #230 games
 
     # TODO: Further preprocessing of regular season data and post season data (by game, by player, by category, etc.)
     #  Current format is all JSON files similar to https://github.com/CroppedClamp/nfl_pbps/tree/master
