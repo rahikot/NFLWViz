@@ -8,6 +8,7 @@
   <script type="text/javascript" src="visualizeGameData.js"></script>
   <script type="text/javascript" src="lib/d3-simple-slider.js"></script>
   <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" type="text/css" href="teamColors.css">
 </head>
 
 <body>
@@ -59,8 +60,6 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         .attr("height", 500); // Height of the image
 
 
-
-
     var football = mainSvg.append("rect")
           .attr("width", 10)
           .attr("height", 10)
@@ -70,18 +69,16 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
     bottomLeft = [81, 535]
     topRight = [816 , 155]
-    // svg holding name of teams (TODO: add score and which is home/away team)
+
     const textSvg = mainSvg.append("svg")
       .attr("x", 240)
       .attr("y", 50)
       .attr("width", 500)
       .attr("height", 200);
 
-    //displayTeams(textSvg, "TB", "DAL")
-
 
     var sliderGroup = mainSvg.append('g')
-    .attr('transform', 'translate(0,600)');
+    .attr('transform', 'translate(0,700)');
 
     var slider = d3.sliderHorizontal()
         .step(1)
@@ -91,6 +88,40 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
             d3.select('#value').text(val);
         });
 
+
+    const homeTeam = mainSvg.append("g")
+      .attr("transform", "translate(250, 575)")
+      .attr("id", "homeTeam")
+      .style("display", "none");
+
+    homeTeam.append("rect")
+      .attr("width", 200)
+      .attr("height", 50)
+      .attr("stroke", "black")
+      .attr("stroke-width", 2);
+
+    const awayTeam = mainSvg.append("g")
+      .attr("transform", "translate(450, 575)")
+      .attr("id", "awayTeam")
+      .style("display", "none");
+
+    awayTeam.append("rect")
+      .attr("width", 200)
+      .attr("height", 50)
+      .attr("stroke", "black")
+      .attr("stroke-width", 2);
+
+    const gameInfo = mainSvg.append("g")
+      .attr("transform", "translate(250, 630)")
+      .attr("id", "gameInfo")
+      .style("display", "none");
+
+    gameInfo.append("rect")
+      .attr("width", 400)
+      .attr("height", 40)
+      .attr("fill", "#415D59")
+      .attr("stroke", "black")
+      .attr("stroke-width", 2)
 
     //Note: this does not include all columns, some were excluded since I didn't see their use
 
@@ -218,14 +249,22 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
       let sliderMapping = {}
       d3.select("#gameDropdown").on('change', function() {
         selectedGameId = d3.select(this).property('value');
-        displayTeams(textSvg, gameDatabyId[selectedGameId].homeTeamAbbr,gameDatabyId[selectedGameId].visitorTeamAbbr)
+        homeTeamAbbr = gameDatabyId[selectedGameId].homeTeamAbbr
+        awayTeamAbbr = gameDatabyId[selectedGameId].visitorTeamAbbr
+        displayTeams(textSvg, homeTeamAbbr, awayTeamAbbr)
+
+        const homeColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${homeTeamAbbr}`) || "blue";
+        const awayColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${awayTeamAbbr}`) || "blue";
+
+        populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTeamAbbr);
         d3.select("#season").text(gameDatabyId[selectedGameId].season)
         d3.select("#date").text("Game Date: "+ gameDatabyId[selectedGameId].gameDate); 
-        
+
         d3.select("#time").text("Game Time: " + gameDatabyId[selectedGameId].gameTimeEastern + " EST")
         filterPlay(selectedGameId)
         sliderMapping = getSliderMapping(dataByGameId[selectedGameId].playIdToRows)
         slider.min(0).max(Object.keys(sliderMapping).length - 1)
+        slider.value(0);
         sliderGroup.call(slider);
       })
 
@@ -236,6 +275,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           d3.select("#playDown").text("Down: " + playDatabyId[sliderMapping[value]].down)
           d3.select("#playScore").text("Score: " + playDatabyId[sliderMapping[value]].preSnapHomeScore +" : " + playDatabyId[sliderMapping[value]].preSnapVisitorScore)
           football.style("display", "block")
+          updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]])
           visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr);
   });
 
