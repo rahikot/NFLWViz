@@ -52,6 +52,7 @@ function getSliderMapping(playIdToRows) {
 }
 
 function visualizePlayers(playerData, color) {
+    
     var circles = mainSvg.selectAll("circle").data(playerData, function(d) {
         return d.jerseyNumber + d.team;
     });
@@ -311,6 +312,17 @@ function addMarkers(mainSvg, playData, homeTeam, awayTeam) {
 }
 
 function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awayTeam) {
+    
+    // Vanilla JS to make a GET request
+    fetch('http://127.0.0.1:5000/get_play_details?home_team=SF&away_team=ATL&yardlineNumber=50&quarter=1&down=4&gameClock_minutes=10&gameClock_seconds=15&yardsToGo=45&preSnapHomeScore=7&preSnapVisitorScore=5&offensiveTeam=SF&defensiveTeam=ATL')
+    .then(response => response.json())
+    .then(data => {
+    console.log(data); // Process your data here
+    })
+    .catch(error => {
+    console.error('Error:', error);
+    });
+    
     if (!allPlayData[playNumber]) {
         throw new Error(`Play # '${playNumber}' could not be found.`)
     }
