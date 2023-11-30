@@ -13,6 +13,7 @@ def get_play_details():
     
     # Getting JSON data from the request
     df = pd.read_csv("backend/data/plays.csv", index_col=0)
+
     request_data = request.args.to_dict()
     offensive_team = request_data["offensiveTeam"]
     defensive_team = request_data["defensiveTeam"]
@@ -24,6 +25,7 @@ def get_play_details():
         df = df[df["down"] == 4]
     
     similar_df, similar_df_specified, similar_df_defensive = produce_dataframes(df, offensive_team, defensive_team, request_data)
+
 
     recommendation = recommend_play(similar_df, pd.Series(request_data))
 
