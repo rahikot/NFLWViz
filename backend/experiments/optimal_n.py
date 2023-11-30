@@ -61,7 +61,7 @@ import json
 
 json = json.dumps(results)
 
-f = open("optimal_n.json","w")
+f = open("optimal_n_full.json","w")
 f.write(json)
 f.close()
 
