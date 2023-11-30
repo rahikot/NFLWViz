@@ -31,8 +31,11 @@ def readFolderDirectory(directory):
 if __name__ == "__main__":
     regSeasonDataDirectory = os.path.dirname(os.path.realpath(__file__)) + '/data/nfl_pbps-master/reg'
     postSeasonDataDirectory = os.path.dirname(os.path.realpath(__file__)) + '/data/nfl_pbps-master/post'
+
+
     regData = readFolderDirectory(regSeasonDataDirectory) #5520 games
     postSeasonData = readFolderDirectory(postSeasonDataDirectory) #230 games
+
 
     # TODO: Further preprocessing of regular season data and post season data (by game, by player, by category, etc.)
     #  Current format is all JSON files similar to https://github.com/CroppedClamp/nfl_pbps/tree/master

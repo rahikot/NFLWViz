@@ -1,16 +1,308 @@
 <!DOCTYPE html>
+<html>
 
 <head>
-  <title>NFL Visualization</title>
+  <title style="box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);">NFL Visualization</title>
   <meta charset="utf-8">
   <script type="text/javascript" src="lib/d3.v5.min.js"></script>
+  <script type="text/javascript" src="visualizeGameData.js"></script>
+  <script type="text/javascript" src="lib/d3-simple-slider.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
 <body>
   <h1>NFL Play Visualization</h1>
+  <div class = "titleInfo">
+    <select id="gameDropdown"></select>
+    <div class="gameBoxes">
+      <p class="gameTitles">Season</p>
+      <p class="gameStats", id="season"></p>
+    </div>
+    <div class="gameBoxes">
+      <p class="gameTitles">Date</p>
+      <p class="gameStats", id="date"></p>
+    </div>
+    <div class="gameBoxes">
+      <p class="gameTitles">Time</p>
+      <p class="gameStats", id="time"></p>
+    </div>
+   
+    <p class="playStats", id="playNumber"></p>
+    <p class="playStats", id="playQuarter"></p>
+    <p class="playStats", id="playDown"></p>
+    <p class="playStats", id="playScore"></p>
+  </div>
+  
+  
+  <div id="output", style="position: absolute; justify-self: center;"></div>
 
-  <script type="text/javascript">
+  <script>
+
+const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+    const width = 960 - margin.left - margin.right;
+    const height = 960 - margin.top - margin.bottom;
+
+    // all svg's should be inside mainSvg
+    const mainSvg = d3.select("#output")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    const imageUrl = 'NFLField.png';
+    image = mainSvg.append("image")
+        .attr("xlink:href", imageUrl)
+        .attr("x", 0) // X-coordinate of the image
+        .attr("y", 100) // Y-coordinate of the image
+        .attr("width", 900) // Width of the image
+        .attr("height", 500); // Height of the image
+
+
+    var football = mainSvg.append("ellipse")
+          .attr("cx", 100)
+          .attr("cy", 25)
+          .attr("rx", 4)
+          .attr("ry", 2)
+          .attr("stroke", "black")
+          .attr("stroke-width", 2)
+          .attr("fill", "brown")
+          .attr("class", "football")
+          .style("display", "none")
+
+
+    bottomLeft = [81, 535]
+    topRight = [816 , 155]
+
+    const textSvg = mainSvg.append("svg")
+      .attr("x", 240)
+      .attr("y", 50)
+      .attr("width", 500)
+      .attr("height", 200);
+
+
+    var sliderGroup = mainSvg.append('g')
+    .attr('transform', 'translate(0,700)');
+
+
+    var slider = d3.sliderHorizontal()
+        .step(1)
+        .width(900)
+        .displayValue(true)
+        .on('onchange', function(val) {
+            d3.select('#value').text("Play # " + val);
+        })
+
+    playNumberText = sliderGroup.append("text")
+          .attr("x", 900/2)
+          .attr("y", 100)
+          .text("Play #")
+          .style("font-size", "32px")
+          .style("font-weight", "bold")
+
+    textWidth = playNumberText.node().getBBox().width;
+    playNumberText.attr("x", 900/2 - textWidth / 2)
+    playNumberText.style("display", "none")
+
+    const homeTeam = mainSvg.append("g")
+      .attr("transform", "translate(250, 575)")
+      .attr("id", "homeTeam")
+      .style("display", "none");
+
+    homeTeam.append("rect")
+      .attr("width", 200)
+      .attr("height", 50)
+      .attr("stroke", "black")
+      .attr("stroke-width", 2);
+
+    const awayTeam = mainSvg.append("g")
+      .attr("transform", "translate(450, 575)")
+      .attr("id", "awayTeam")
+      .style("display", "none");
+
+    awayTeam.append("rect")
+      .attr("width", 200)
+      .attr("height", 50)
+      .attr("stroke", "black")
+      .attr("stroke-width", 2);
+
+    const gameInfo = mainSvg.append("g")
+      .attr("transform", "translate(250, 630)")
+      .attr("id", "gameInfo")
+      .style("display", "none");
+
+    gameInfo.append("rect")
+      .attr("width", 400)
+      .attr("height", 40)
+      .attr("fill", "#415D59")
+      .attr("stroke", "black")
+      .attr("stroke-width", 2)
+
+    //Note: this does not include all columns, some were excluded since I didn't see their use
+
+    var weekData = d3.csv("week1.csv", function(d) {
+
+      return {
+        gameId: +d.gameId,
+        playId: +d.playId,
+        frameId: +d.frameId,
+        jerseyNumber: +d.jerseyNumber,
+        time: d.time.toString(),
+        team: d.team,
+        playDirection: d.playDirection,
+        x: +d.x,
+        y: +d.y,
+        s: +d.s,
+        a: +d.a,
+        dis: +d.dis,
+        o: +d.o,
+        dir: +d.dir,
+        event: d.event
+      };
+    })
+    
+    var gameData = d3.csv("games.csv")
+    var playData = d3.csv("plays.csv")
+
+    Promise.all([
+      weekData, gameData, playData
+    ]).then(
+      function(values){
+                var error = ""
+                ready("", values[0], values[1], values[2])
+          }
+  
+    );
+
+
+    function ready(error, weekData, gameData, playData) {
+      const dataDictionary = {};
+
+      var gameDatabyId = {}
+      gameData.forEach(rowData => {
+        gameDatabyId[rowData.gameId] = rowData
+      })
+
+
+      var defaultGame = gameData[0].gameId
+      var filteredPlayData = playData
+      filteredPlayData = playData.filter((d) => {
+        
+        return d.gameId === defaultGame
+        }
+      )
+      
+      var playDatabyId = {}
+      filteredPlayData.forEach(rowData => {
+        playDatabyId[rowData.playId] = rowData
+      })
+      function filterPlay(filter) {
+        defaultGame = filter
+        filteredPlayData = playData.filter((d) => {
+          return d.gameId === defaultGame
+            }
+          ) 
+        filteredPlayData.forEach(rowData => {
+        playDatabyId[rowData.playId] = rowData
+          })
+      }
+
+      //weekData
+      weekData.forEach((row, index) => {
+        dataDictionary[index] = row;
+      })
+
+
+
+      let dataByGameId = {}
+
+      weekData.forEach((row, index) => {
+          const gameId = row.gameId;
+          const playId = row.playId;
+          newCoordinates = scaleCoordinates(row.x, row.y)
+          row.x = newCoordinates[0];
+          row.y = newCoordinates[1];
+
+          if (!dataByGameId[gameId]) {
+              dataByGameId[gameId] = {};
+          }
+
+          if (!dataByGameId[gameId].rows) {
+              dataByGameId[gameId].rows = {};
+          }
+
+          if (!dataByGameId[gameId].rows[index]) {
+            dataByGameId[gameId].rows[index] = []
+          }
+          dataByGameId[gameId].rows[index].push(row);
+
+          if (!dataByGameId[gameId].playIdToRows) {
+              dataByGameId[gameId].playIdToRows = {};
+          }
+
+          if (!dataByGameId[gameId].playIdToRows[playId]) {
+              dataByGameId[gameId].playIdToRows[playId] = [];
+          }
+
+          dataByGameId[gameId].playIdToRows[playId].push(row);
+      });
+
+      var interval = 100
+      
+      
+      d3.select("#gameDropdown").selectAll('option')
+            .data(gameData)
+            .enter()
+            .append('option')
+            .text(function(d){
+                return d.homeTeamAbbr + " vs. " + d.visitorTeamAbbr
+            })
+            .attr("value", function(d){
+                return d.gameId
+            })
+      let selectedGameId;
+      let sliderMapping = {}
+      d3.select("#gameDropdown").on('change', function() {
+        selectedGameId = d3.select(this).property('value');
+        homeTeamAbbr = gameDatabyId[selectedGameId].homeTeamAbbr
+        awayTeamAbbr = gameDatabyId[selectedGameId].visitorTeamAbbr
+        displayTeams(textSvg, homeTeamAbbr, awayTeamAbbr)
+
+        playNumberText.style("display", "block")
+
+        const homeColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${homeTeamAbbr}`) || "blue";
+        const awayColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${awayTeamAbbr}`) || "blue";
+
+        populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTeamAbbr);
+        d3.select("#season").text(gameDatabyId[selectedGameId].season)
+        d3.select("#date").text("Game Date: "+ gameDatabyId[selectedGameId].gameDate); 
+
+        d3.select("#time").text("Game Time: " + gameDatabyId[selectedGameId].gameTimeEastern + " EST")
+        filterPlay(selectedGameId)
+        sliderMapping = getSliderMapping(dataByGameId[selectedGameId].playIdToRows)
+        slider.min(0).max(Object.keys(sliderMapping).length - 1)
+        slider.value(0);
+        sliderGroup.call(slider);
+
+      })
+
+
+      slider.on('end', function(value) {
+          addMarkers(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
+          d3.select("#playNumber").text(playDatabyId[sliderMapping[value]].playDescription)
+          d3.select("#playQuarter").text("Quarter: " + playDatabyId[sliderMapping[value]].quarter)
+          d3.select("#playDown").text("Down: " + playDatabyId[sliderMapping[value]].down)
+          d3.select("#playScore").text("Score: " + playDatabyId[sliderMapping[value]].preSnapHomeScore +" : " + playDatabyId[sliderMapping[value]].preSnapVisitorScore)
+          football.style("display", "block")
+          updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
+          visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr);
+  });
+
+
+  }
+    
 
   </script>
 </body>
+</html>
 
