@@ -314,6 +314,7 @@ function addMarkers(mainSvg, playData, homeTeam, awayTeam) {
 function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awayTeam) {
     
     // Vanilla JS to make a GET request
+    // `raw_text${}`
     fetch('http://127.0.0.1:5000/get_play_details?home_team=SF&away_team=ATL&yardlineNumber=50&quarter=1&down=4&gameClock_minutes=10&gameClock_seconds=15&yardsToGo=45&preSnapHomeScore=7&preSnapVisitorScore=5&offensiveTeam=SF&defensiveTeam=ATL')
     .then(response => response.json())
     .then(data => {
