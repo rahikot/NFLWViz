@@ -84,14 +84,25 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     var sliderGroup = mainSvg.append('g')
     .attr('transform', 'translate(0,700)');
 
+
     var slider = d3.sliderHorizontal()
         .step(1)
         .width(900)
         .displayValue(true)
         .on('onchange', function(val) {
-            d3.select('#value').text(val);
-        });
+            d3.select('#value').text("Play # " + val);
+        })
 
+    playNumberText = sliderGroup.append("text")
+          .attr("x", 900/2)
+          .attr("y", 100)
+          .text("Play #")
+          .style("font-size", "32px")
+          .style("font-weight", "bold")
+
+    textWidth = playNumberText.node().getBBox().width;
+    playNumberText.attr("x", 900/2 - textWidth / 2)
+    playNumberText.style("display", "none")
 
     const homeTeam = mainSvg.append("g")
       .attr("transform", "translate(250, 575)")
@@ -257,6 +268,8 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         awayTeamAbbr = gameDatabyId[selectedGameId].visitorTeamAbbr
         displayTeams(textSvg, homeTeamAbbr, awayTeamAbbr)
 
+        playNumberText.style("display", "block")
+
         const homeColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${homeTeamAbbr}`) || "blue";
         const awayColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${awayTeamAbbr}`) || "blue";
 
@@ -270,6 +283,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         slider.min(0).max(Object.keys(sliderMapping).length - 1)
         slider.value(0);
         sliderGroup.call(slider);
+
       })
 
 

@@ -55,15 +55,38 @@ function visualizePlayers(playerData, color) {
     var circles = mainSvg.selectAll("circle").data(playerData, function(d) {
         return d.jerseyNumber + d.team;
     });
-
     circles.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
 
     circles.enter().append("circle")
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; })
-        .attr("r", 5)
-        .attr("fill", color);
+        .attr("r", 7)
+        .attr("fill", "none")
+        .attr("stroke", color)
+        .attr("stroke-width", 2)
+        .attr("id", function(d) { return "circle-" + d.jerseyNumber + "-" + d.team; })
+        .attr("class", "circle-label");
+
+    circles.enter().append("text")
+        .attr("x", function(d) { return d.x; })
+        .attr("y", function(d) { return d.y; })
+        .style("font-size", "10px")
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "middle")
+        .attr("fill", color)
+        .text(function(d) { return d.jerseyNumber; })
+        .attr("id", function(d) { return "text-" + d.jerseyNumber + "-" + d.team; })
+        .attr("class", "circle-label");
+
+    circles.each(function(d) {
+        const textId = "text-" + d.jerseyNumber + "-" + d.team;
+        const correspondingText = d3.select("#" + textId);
+        if (correspondingText.size() > 0) {
+            correspondingText.attr("x", d.x).attr("y", d.y);
+        }
+    });
+
 }
 
 function populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTeamAbbr) {
@@ -345,7 +368,7 @@ function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awa
     };
 
     const intervalID = setInterval(updateLocation, interval);
-    mainSvg.selectAll("circle").remove();
+    mainSvg.selectAll(".circle, .circle-label").remove();
 
 }
 

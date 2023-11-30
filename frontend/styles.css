@@ -118,4 +118,8 @@ p.gameStats {
 
 }
 
-  
+.axis text,
+.slider text {
+  font-size: 18px;
+  font-weight: bold;
+}
