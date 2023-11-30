@@ -8,7 +8,6 @@
   <script type="text/javascript" src="visualizeGameData.js"></script>
   <script type="text/javascript" src="lib/d3-simple-slider.js"></script>
   <link rel="stylesheet" type="text/css" href="styles.css">
-  <link rel="stylesheet" type="text/css" href="teamColors.css">
 </head>
 
 <body>
@@ -60,12 +59,17 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         .attr("height", 500); // Height of the image
 
 
-    var football = mainSvg.append("rect")
-          .attr("width", 10)
-          .attr("height", 10)
+    var football = mainSvg.append("ellipse")
+          .attr("cx", 100)
+          .attr("cy", 25)
+          .attr("rx", 4)
+          .attr("ry", 2)
+          .attr("stroke", "black")
+          .attr("stroke-width", 2)
           .attr("fill", "brown")
           .attr("class", "football")
           .style("display", "none")
+
 
     bottomLeft = [81, 535]
     topRight = [816 , 155]
@@ -270,12 +274,13 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
 
       slider.on('end', function(value) {
+          addMarkers(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           d3.select("#playNumber").text(playDatabyId[sliderMapping[value]].playDescription)
           d3.select("#playQuarter").text("Quarter: " + playDatabyId[sliderMapping[value]].quarter)
           d3.select("#playDown").text("Down: " + playDatabyId[sliderMapping[value]].down)
           d3.select("#playScore").text("Score: " + playDatabyId[sliderMapping[value]].preSnapHomeScore +" : " + playDatabyId[sliderMapping[value]].preSnapVisitorScore)
           football.style("display", "block")
-          updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]])
+          updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr);
   });
 

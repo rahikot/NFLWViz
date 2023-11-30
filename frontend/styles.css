@@ -64,4 +64,58 @@ p.gameStats {
     font-family: "San Francisco", Arial, sans-seri;
     
   }
+
+
+.ellipse {
+    stroke: black;
+    stroke-width: 2;
+    rx: 10;
+    ry: 5;
+}
+
+
+.text-styling {
+  fill: white;
+  font-style: italic;
+  font-family: 'Helvetica, Arial, sans-serif', sans-serif;
+  font-size: 30px;
+}
+
+
+:root {
+  --team-color-ARI: #97233F;
+  --team-color-ATL: #A71930;
+  --team-color-BAL: #241773;
+  --team-color-BUF: #00338D;
+  --team-color-CAR: #0085CA;
+  --team-color-CHI: #C83803;
+  --team-color-CIN: #FB4F14;
+  --team-color-CLE: #FF3C00;
+  --team-color-DAL: #003594;
+  --team-color-DEN: #FB4F14;
+  --team-color-DET: #0076B6;
+  --team-color-GB: #FFB612;
+  --team-color-HOU: #A71930;
+  --team-color-IND: #002C5F;
+  --team-color-JAX: #D7A22A;
+  --team-color-KC: #E31837;
+  --team-color-LV: #000000;
+  --team-color-LA: #003594;
+  --team-color-LAC: #0080C6;
+  --team-color-MIA: #008E97;
+  --team-color-MIN: #4F2683;
+  --team-color-NE: #002244;
+  --team-color-NO: #D3BC8D;
+  --team-color-NYG: #0B2265;
+  --team-color-NYJ: #125740;
+  --team-color-PHI: #004C54;
+  --team-color-PIT: #FFB612;
+  --team-color-SF: #AA0000;
+  --team-color-SEA:#69BE28;
+  --team-color-TB: #D50A0A;
+  --team-color-TEN: #4B92DB;
+  --team-color-WAS: #5A1414;
+
+}
+
   
