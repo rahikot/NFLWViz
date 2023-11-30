@@ -3,13 +3,61 @@ import gower
 import numpy as np
 from collections import Counter
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from scipy.stats import gmean
+
+def predict_yardage(group, play):
+    if len(group) == 0: 
+         return 0
+    
+    dtype_dict = {
+        'yardlineNumber': 'float64',
+        'quarter': 'float64',
+        'down': 'float64',
+        'gameClock_minutes': 'int64',
+        'gameClock_seconds': 'int64',
+        'yardsToGo': 'float64',
+        'preSnapHomeScore': 'float64',
+        'preSnapVisitorScore': 'float64'
+    }
+
+    if len(group) <= 20:
+        return group["yards_gained"].mean()
+
+    play = play.astype(dtype_dict)
+    
+    X = group[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]]
+    y = group[["yards_gained"]]
+    X = sm.add_constant(X)
+    weights = group["gower_similarity"]
+    model = sm.WLS(y, X, weights=weights)
+    results = model.fit()
+
+    return results.predict(play[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]]).iloc[0]
+
+def get_yardage(similar_df, play):
+    pass_group = []
+    run_group = []
+    for play_type, group in similar_df.groupby('play_type'):
+            if play_type == "pass": 
+                    pass_group = group
+            elif play_type == "run":
+                    run_group = group
 
 
+    play = play.to_frame().T
+
+    pass_yardage = predict_yardage(pass_group, play)
+    run_yardage = predict_yardage(run_group, play)
+
+    run_std = run_group["yards_gained"].std() if len(run_group) != 0 else 0
+    pass_std = pass_group["yards_gained"].std() if len(pass_group) != 0 else 0
+
+    return np.array([pass_yardage, run_yardage]), np.array([pass_std, run_std])
 
 def find_similar_scenarios(df, play, n):
-    if int(play["down"]) == 4:
-        df = df[df["down"] == 4]
-            
+    df = df[df["down"] == int(play["down"])]
+        
     play = pd.DataFrame([play])
 
     dtype_dict = {
@@ -49,10 +97,8 @@ def recommend_play(df, play):
     play_type = 0
     play_direction = 0
     mean_yardage = 0
-    
-    mean_yardage = df.groupby("play_type").mean("yards_gained")["yards_gained"][["pass", "run"]].values
-    std_yardage = df[["play_type", "yards_gained"]].groupby("play_type").std().iloc[1:].values.reshape(1,-1)[0][-2:]
-    
+
+    mean_yardage, std_yardage = get_yardage(df, play)
     if (mean_yardage / std_yardage)[0] > (mean_yardage / std_yardage)[1]:
         play_type = "pass"
         mean_yardage = mean_yardage[0]
@@ -75,10 +121,9 @@ def recommend_play(df, play):
 
 
 if __name__ == "__main__":
-    df = pd.read_csv("backend/data/plays.csv", index_col=0)
+    df = pd.read_csv("backend/data/plays copy.csv", index_col=0)
     play = df[df["down"] == 3].iloc[0]
   
     similar_plays = find_similar_scenarios(df, play[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], 150)
-    print(similar_plays)
     print(recommend_play(similar_plays, play[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]]))
 
