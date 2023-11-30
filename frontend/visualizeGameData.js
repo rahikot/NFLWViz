@@ -188,6 +188,31 @@ function populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTea
 
 }
 
+function backendCall(mainSvg, playData, homeTeamAbbr, awayTeamAbbr) {
+    //["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore", "offensiveTeam", "defensiveTeam"]
+    //all variables below are strings
+    yardlineNumber = (parseInt(playData.absoluteYardlineNumber) - 10).toString() // -10 to account for endzone
+    quarter = playData.quarter //possible values are 1, 2, 3, 4
+    down = playData.down //possible values are 1, 2, 3, 4
+    const [gameClock_minutes, gameClock_seconds] = playData.gameClock.split(":").map(Number);
+    yardsToGo = playData.yardsToGo
+    preSnapHomeScore = playData.preSnapHomeScore
+    preSnapVisitorScore = playData.preSnapVisitorScore
+    offensiveTeam = playData.possessionTeam
+    defensiveTeam = playData.possessionTeam === homeTeamAbbr ? awayTeamAbbr : homeTeamAbbr
+
+    console.log("yardlineNumber:", yardlineNumber);
+    console.log("quarter:", quarter);
+    console.log("down:", down);
+    console.log("gameClock_minutes:", gameClock_minutes);
+    console.log("gameClock_seconds:", gameClock_seconds);
+    console.log("yardsToGo:", yardsToGo);
+    console.log("preSnapHomeScore:", preSnapHomeScore);
+    console.log("preSnapVisitorScore:", preSnapVisitorScore);
+    console.log("offensiveTeam:", offensiveTeam);
+    console.log("defensiveTeam:", defensiveTeam);
+}
+
 function updateScoreBoard(mainSvg, playData, homeTeamAbbr, awayTeamAbbr) {
     const homeTeam = mainSvg.select("#homeTeam");
     const awayTeam = mainSvg.select("#awayTeam");
@@ -231,29 +256,6 @@ function updateScoreBoard(mainSvg, playData, homeTeamAbbr, awayTeamAbbr) {
     } else {
         awayTeam.select("#awayPossession").style("display", "block");
     }
-
-    // ["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore", "offensiveTeam", "defensiveTeam"]
-    // all variables below are strings
-    // yardlineNumber = (parseInt(playData.absoluteYardlineNumber) - 10).toString() // -10 to account for endzone
-    // quarter = playData.quarter //possible values are 1, 2, 3, 4
-    // down = playData.down //possible values are 1, 2, 3, 4
-    // const [gameClock_minutes, gameClock_seconds] = playData.gameClock.split(":").map(Number);
-    // yardsToGo = playData.yardsToGo
-    // preSnapHomeScore = playData.preSnapHomeScore
-    // preSnapVisitorScore = playData.preSnapVisitorScore
-    // offensiveTeam = playData.possessionTeam
-    // defensiveTeam = playData.possessionTeam === homeTeamAbbr ? awayTeamAbbr : homeTeamAbbr
-    //
-    // console.log("yardlineNumber:", yardlineNumber);
-    // console.log("quarter:", quarter);
-    // console.log("down:", down);
-    // console.log("gameClock_minutes:", gameClock_minutes);
-    // console.log("gameClock_seconds:", gameClock_seconds);
-    // console.log("yardsToGo:", yardsToGo);
-    // console.log("preSnapHomeScore:", preSnapHomeScore);
-    // console.log("preSnapVisitorScore:", preSnapVisitorScore);
-    // console.log("offensiveTeam:", offensiveTeam);
-    // console.log("defensiveTeam:", defensiveTeam);
 
 }
 
