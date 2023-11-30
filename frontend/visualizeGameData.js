@@ -332,7 +332,7 @@ function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awa
             }
             visualizePlayers(homeData, homeColor);
             visualizePlayers(awayData, awayColor);
-            mainSvg.select(".football").attr("x", footballData[0].x).attr("y", footballData[0].y);
+            mainSvg.select(".football").attr("cx", footballData[0].x).attr("cy", footballData[0].y);
             index++;
 
             if (index % 10 === 0) {

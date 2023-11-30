@@ -59,14 +59,16 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         .attr("height", 500); // Height of the image
 
 
-    var football = mainSvg.append("rect")
-          .attr("width", 10)
-          .attr("height", 10)
+    var football = mainSvg.append("ellipse")
+          .attr("cx", 100)
+          .attr("cy", 25)
+          .attr("rx", 4)
+          .attr("ry", 2)
+          .attr("stroke", "black")
+          .attr("stroke-width", 2)
           .attr("fill", "brown")
           .attr("class", "football")
           .style("display", "none")
-
-
 
 
     bottomLeft = [81, 535]
