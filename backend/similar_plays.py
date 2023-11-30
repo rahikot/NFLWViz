@@ -30,8 +30,7 @@ def find_similar_scenarios(df, play, n):
         play[col] = np.nan
     
         
-    results = gower.gower_topn(play[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], df[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], n=n + 1)
-
+    results = gower.gower_topn(play[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], df[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], n=n + 1, cat_features=[False, True, True, False, False, False, True, True])
     index = results["index"]
     values = results["values"]
     new_df = df.iloc[[i for i in index][1:]]

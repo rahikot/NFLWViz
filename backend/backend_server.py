@@ -46,4 +46,5 @@ if __name__ == '__main__':
     """
     # ["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]], df[["yardlineNumber", "quarter", "down", 'gameClock_minutes', 'gameClock_seconds', "yardsToGo", "preSnapHomeScore", "preSnapVisitorScore"]
     # EXAMPLE QUERY: http://127.0.0.1:5000/get_play_details?home_team=SF&away_team=ATL&yardlineNumber=50&quarter=1&down=4&gameClock_minutes=10&gameClock_seconds=15&yardsToGo=45&preSnapHomeScore=7&preSnapVisitorScore=5&offensiveTeam=SF&defensiveTeam=ATL
+    # http://127.0.0.1:5000/get_play_details?home_team=SF&away_team=ATL&yardlineNumber=77&quarter=1&down=1&gameClock_minutes=15&gameClock_seconds=0&yardsToGo=10&preSnapHomeScore=0&preSnapVisitorScore=0&offensiveTeam=ATL&defensiveTeam=SF
     app.run(host='127.0.0.1', threaded=True, debug=True)

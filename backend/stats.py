@@ -50,6 +50,5 @@ def historical_play_types(similar_df, similar_df_specified, similar_df_defensive
 
 
 def return_gower_values(similar_df, similar_df_specified,similar_df_defensive):
-    print(similar_df["gower_similarity"])
     return {"All Teams" : sorted(similar_df["gower_similarity"].values.astype(float)), "Specified Team" : sorted(similar_df_specified["gower_similarity"].values.astype(float)), "Defense Specific" : sorted(similar_df_defensive["gower_similarity"].values.astype(float))}
 
