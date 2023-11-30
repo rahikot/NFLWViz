@@ -4,6 +4,7 @@ from turtle import distance
 import pandas as pd
 import os
 import sys
+from pprint import pprint
 
 df_reg = pd.DataFrame(columns=["Team", "Time", "Redzone", "Down", "Current Place"])
 df_post = pd.DataFrame(columns=["Team", "Time", "Redzone", "Down", "Yards To Go", "Current Place"])
@@ -23,10 +24,15 @@ def process_json(file_name, dataframe):
             temp = int(drive)
         except:
             break
+        print(drive)
         drive = drives[drive]
+        pprint(drive)
+        print("___________")
         team = drive["posteam"]
         redzone = drive['redzone']
         for play in drive['plays']:
+            #pprint(drive["plays"])
+            
             time = play
             play = drive['plays'][play]
             down = play['down']
