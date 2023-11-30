@@ -296,6 +296,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           football.style("display", "block")
           updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr);
+          backendCall(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
   });
 
 
