@@ -271,7 +271,7 @@ function addMarkers(mainSvg, playData, homeTeam, awayTeam) {
         .attr("id", "scrimmage")
         .attr("x", lineOfScrimmage)
         .attr("y", 164)
-        .attr("width", 1)
+        .attr("width", 3)
         .attr("height", 372)
         .attr("fill", "blue")
 
@@ -280,7 +280,7 @@ function addMarkers(mainSvg, playData, homeTeam, awayTeam) {
             .attr("id", "firstDown")
             .attr("x", firstDownMarker)
             .attr("y", 164)
-            .attr("width", 1)
+            .attr("width", 3)
             .attr("height", 372)
             .attr("fill", "yellow")
     }
