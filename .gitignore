@@ -15,3 +15,5 @@ __pycache__/
 .project
 .settings/
 .vscode/*
+
+*/.DS_Store
