@@ -17,4 +17,4 @@ __pycache__/
 .vscode/*
 
 */.DS_Store
-backend/data/plays.csv
+# backend/data/plays.csv
