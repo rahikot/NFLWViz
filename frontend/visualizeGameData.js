@@ -213,6 +213,31 @@ function backendCall(mainSvg, playData, homeTeamAbbr, awayTeamAbbr) {
     console.log("defensiveTeam:", defensiveTeam);
 }
 
+function backendCallJson(mainSvg, playData, homeTeamAbbr, awayTeamAbbr) {
+    yardlineNumber = (parseInt(playData.absoluteYardlineNumber) - 10).toString() // -10 to account for endzone
+    quarter = playData.quarter //possible values are 1, 2, 3, 4
+    down = playData.down //possible values are 1, 2, 3, 4
+    const [gameClock_minutes, gameClock_seconds] = playData.gameClock.split(":").map(Number);
+    yardsToGo = playData.yardsToGo
+    preSnapHomeScore = playData.preSnapHomeScore
+    preSnapVisitorScore = playData.preSnapVisitorScore
+    offensiveTeam = playData.possessionTeam
+    defensiveTeam = playData.possessionTeam === homeTeamAbbr ? awayTeamAbbr : homeTeamAbbr
+
+    return {
+        "yardlineNumber": yardlineNumber,
+        "quarter": quarter,
+        "down": down,
+        "gameClock_minutes": gameClock_minutes, 
+        "gameClock_seconds": gameClock_seconds,
+        "yardsToGo": yardsToGo,
+        "preSnapHomeScore": preSnapHomeScore,
+        "preSnapAwayScore": preSnapVisitorScore,
+        "offensiveTeam": offensiveTeam,
+        "defensiveTeam": defensiveTeam
+    };
+}
+
 function updateScoreBoard(mainSvg, playData, homeTeamAbbr, awayTeamAbbr) {
     const homeTeam = mainSvg.select("#homeTeam");
     const awayTeam = mainSvg.select("#awayTeam");
@@ -411,3 +436,282 @@ function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awa
 
 }
 
+function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, awayTeam) {
+    backendCallDataResult = backendCallJson(mainSvg, allPlayData, homeTeam, awayTeam);
+
+    yardlineNumber = backendCallDataResult["yardlineNumber"];
+    quarter = backendCallDataResult["quarter"];
+    down = backendCallDataResult["down"];
+    gameClock_minutes = backendCallDataResult["gameClock_minutes"];
+    gameClock_seconds = backendCallDataResult["gameClock_seconds"];
+    yardsToGo = backendCallDataResult["yardsToGo"];
+    preSnapHomeScore = backendCallDataResult["preSnapHomeScore"];
+    preSnapAwayScore = backendCallDataResult["preSnapAwayScore"];
+    offensiveTeam = backendCallDataResult["offensiveTeam"];
+    defensiveTeam = backendCallDataResult["defensiveTeam"];
+
+    allTeamsGV = [];
+    defTeamGV = [];
+    specTeamGV = [];
+    allTeamsMY = [];
+    defTeamMY = [];
+    specTeamMY = [];
+    allTeamsPV = [];
+    defTeamPV = [];
+    specTeamPV = [];
+    rec = [];
+    notifyDanger = false;
+    // make sure that both frontend server and backend server are running
+    fetch_url = `http://127.0.0.1:5000/get_play_details?home_team=${homeTeam}&away_team=${awayTeam}&yardlineNumber=${yardlineNumber}&quarter=${quarter}&down=${down}&gameClock_minutes=${gameClock_minutes}&gameClock_seconds=${gameClock_seconds}&yardsToGo=${yardsToGo}&preSnapHomeScore=${preSnapHomeScore}&preSnapVisitorScore=${preSnapAwayScore}&offensiveTeam=${offensiveTeam}&defensiveTeam=${defensiveTeam}`;
+    fetch_url = 
+    fetch(fetch_url)
+    .then(response => response.json())
+    .then(data => {
+        allTeamsGV = data["gower_values"]["All Teams"];
+        defTeamGV = data["gower_values"]["Defense Specific"];
+        specTeamGV = data["gower_values"]["Specified Team"];
+        allTeamsMY = data["historical_plays"]["mean_yards"]["All Teams"];
+        defTeamMY = data["historical_plays"]["mean_yards"]["Defense Specific"];
+        specTeamMY = data["historical_plays"]["mean_yards"]["Team Specific"];
+        allTeamsPV = data["historical_plays"]["prob_values"]["All Teams"];
+        defTeamPV = data["historical_plays"]["prob_values"]["Defense Specific"];
+        specTeamPV = data["historical_plays"]["prob_values"]["Team Specific"];
+        notifyDanger = data["notify_danger"];
+        rec = data["recommendation"];
+
+        dangerrect = null;
+        dangertext = null;
+        if (!notifyDanger) {
+            if (dangerrect != null) {
+                dangerrect.remove();
+            }
+            if (dangertext != null) {
+                dangertext.remove();
+            }
+            const xScale = d3.scaleLinear().domain([0, allTeamsGV.length]).range([0, 300]);
+            const yScale = d3.scaleLinear().domain([0, Math.max(d3.max(allTeamsGV), 0.65)]).range([300, 0]);
+            const xAxis = d3.axisBottom(xScale);
+            const yAxis = d3.axisLeft(yScale).ticks(10);
+            mainSvg.select('#gv_xaxis').transition().duration(250).call(xAxis);
+            mainSvg.select('#gv_yaxis').transition().duration(250).call(yAxis);
+            const line = d3.line().x((li, i) => xScale(i)).y(li => yScale(li));
+            mainSvg.append('path')
+            .data([allTeamsGV])
+            .attr('transform', 'translate(15, 840)')
+            .attr('d', line)
+            .attr('fill', 'none')
+            .attr('stroke', 'blue')
+            .attr('stroke-width', '4px');
+    
+            mainSvg.append('path')
+            .data([defTeamGV])
+            .attr('transform', 'translate(15, 840)')
+            .attr('d', line)
+            .attr('fill', 'none')
+            .attr('stroke', 'green')
+            .attr('stroke-width', '4px');
+    
+            mainSvg.append('path')
+            .data([specTeamGV])
+            .attr('transform', 'translate(15, 840)')
+            .attr('d', line)
+            .attr('fill', 'none')
+            .attr('stroke', 'red')
+            .attr('stroke-width', '4px');
+    
+            // histogram
+            /*
+            atFGProb = allTeamsPV["field_goal"];
+            atNPProb = allTeamsPV["no_play"];
+            atPProb = allTeamsPV["punt"];
+            atRProb = allTeamsPV["run"];
+    
+            dFGProb = defTeamPV["field_goal"];
+            dNPProb = defTeamPV["no_play"];
+            dPProb = defTeamPV["punt"];
+            dRProb = defTeamPV["run"];
+            console.log(data);
+            tFGProb = specTeamPV["field_goal"];
+            tNPProb = specTeamPV["no_play"];
+            tPProb = specTeamPV["punt"];
+            tRProb = specTeamPV["run"];
+    
+            fgData = [atFGProb, dFGProb, tFGProb];
+            npData = [atNPProb, dNPProb, tNPProb];
+            pData = [atPProb, dPProb, tPProb];
+            rData = [atRProb, dRProb, tRProb];
+    
+            histogram_data = [
+                {
+                    "action": "Field Goal",
+                    "atProb": atFGProb,
+                    "dProb": dFGProb,
+                    "tProb": tFGProb,
+                },
+                {
+                    "action": "No Play",
+                    "atProb": atNPProb,
+                    "dProb": dNPProb,
+                    "tProb": tNPProb,
+                },
+                {
+                    "action": "Punt",
+                    "atProb": atPProb,
+                    "dProb": dPProb,
+                    "tProb": tPProb,
+                },
+                {
+                    "action": "Run",
+                    "atProb": atRProb,
+                    "dProb": dRProb,
+                    "tProb": tRProb,
+                }
+            ];
+            mod_hdata = histogram_data.map(i => {
+                i.action = i.action;
+                return i;
+              });
+            
+            var xScale0 = d3.scaleBand().range([0, 500]).padding([0.2]);
+            var xScale1 = d3.scaleBand();
+            var yScaleH = d3.scaleLinear().range([500, 0]);
+    
+            xScale0.domain(mod_hdata.map(d => d.action));
+            xScale1.domain(['atProb', 'dProb', 'tProb']).range([0, 500]);
+            yScaleH.domain([0, 1]);
+    
+            var model_name = mainSvg.selectAll(".model_name")
+                .data(mod_hdata)
+                .enter().append("g")
+                .attr("class", "model_name")
+                .attr("transform", d => `translate(${xScale0(d.action)},0)`);
+    
+            model_name.selectAll(".bar.field1")
+                .data(d => [d])
+                .enter()
+                .append("rect")
+                .attr("class", "bar field1")
+                .style("fill","blue")
+                .attr("x", d => xScale1(d.atProb))
+                .attr("y", d => yScaleH(d.atProb))
+                .attr("width", 20)
+                .attr("height", d => {return yScaleH(d.atProb)});
+    
+            model_name.selectAll(".bar.field2")
+                .data(d => [d])
+                .enter()
+                .append("rect")
+                .attr("class", "bar field2")
+              .style("fill","red")
+                .attr("x", d => xScale1(d.dProb))
+                .attr("y", d => yScaleH(d.dProb))
+                .attr("width", 20)
+                .attr("height", d => {return yScaleH(d.dProb)});
+            
+            model_name.selectAll(".bar.field3")
+                .data(d => [d])
+                .enter()
+                .append("rect")
+                .attr("class", "bar field3")
+                .style("fill","green")
+                .attr("x", d => xScale1(d.tProb))
+                .attr("y", d => yScaleH(d.tProb))
+                .attr("width", 20)
+                .attr("height", d => {return yScaleH(d.tProb)});
+            */
+        } else {
+            dangerrect = mainSvg.append('rect')
+                .attr("transform", "translate(15, 840)")
+                .attr("width", 1000)
+                .attr("height", 300)
+                .attr("id", "dangerrect")   
+                .attr("fill", "red");
+            dangertext = mainSvg.append('text')
+                .attr("transform", "translate(200, 950)")
+                .style("font-size", "20px")
+                .attr("id", "dangertext")
+                .text("This is a dangerous situation - Punt is advised.");
+        }
+    })
+    .catch(error => {
+        console.error("error:", error);
+    });
+
+
+    // notify danger
+}
+
+function setUpGraphs(mainSvg, width) {
+    // gower chart
+    const xScale = d3.scaleLinear().domain([0, 99]).range([0, 300]);
+    const yScale = d3.scaleLinear().domain([0, 1]).range([300, 0]);
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale).ticks(10);
+
+    mainSvg.append('g')
+        .attr('transform', 'translate(15, 1140)')
+        .attr('id', 'gv_xaxis')
+        .call(xAxis);
+
+    mainSvg.append('g')
+        .attr('transform', 'translate(15, 840)')
+        .attr('id', 'gv_yaxis')
+        .call(yAxis);
+    
+    mainSvg.append('text')
+        .attr('transform', 'translate(125, 1175)')
+        .text('Gower Values');
+
+    mainSvg.append('rect')
+        .attr('transform', 'translate(250, 835)')
+        .attr('fill', 'blue')
+        .attr('width', 10)
+        .attr('height', 10);
+
+    mainSvg.append('rect')
+        .attr('transform', 'translate(250, 850)')
+        .attr('fill', 'red')
+        .attr('width', 10)
+        .attr('height', 10);
+    
+    mainSvg.append('rect')
+        .attr('transform', 'translate(250, 865)')
+        .attr('fill', 'green')
+        .attr('width', 10)
+        .attr('height', 10);
+    
+    mainSvg.append('text')
+        .attr('transform', 'translate(265, 842)')
+        .style('font-size', '9px')
+        .text("All Teams");
+    
+    mainSvg.append('text')
+        .attr('transform', 'translate(265, 857)')
+        .style('font-size', '9px')
+        .text("Defense Specified");
+
+    mainSvg.append('text')
+        .attr('transform', 'translate(265, 872)')
+        .style('font-size', '9px')
+        .text("Specified Team");
+
+    // histogram
+    const xScaleH = d3.scaleBand().domain(["Field Goal", "No Play", "Punt", "Run"]).range([0, 500]).padding([0.2]);
+    const yScaleH = d3.scaleLinear().domain([0, 1]).range([300, 0]);
+    const xAxisH = d3.axisBottom(xScaleH).tickValues(["Field Goal", "No Play", "Punt", "Run"]);
+    const yAxisH = d3.axisLeft(yScaleH).ticks(10);
+
+    mainSvg.append('g')
+        .attr('transform', 'translate(415, 1140)')
+        .attr('id', 'h_xaxis')
+        .call(xAxisH);
+
+    mainSvg.append('g')
+        .attr('transform', 'translate(415, 840)')
+        .attr('id', 'h_yaxis')
+        .call(yAxisH);
+    
+    mainSvg.append('text')
+        .attr('transform', 'translate(615, 1175)')
+        .text('Success Probabilities');
+}
