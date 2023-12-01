@@ -1,0 +1,3 @@
+gower
+flask
+flask_cors
