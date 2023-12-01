@@ -521,7 +521,7 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         .attr('stroke-width', '4px');
 
         // histogram
-        
+        console.log(data);
         atFGProb = allTeamsPV["field_goal"] === undefined ? 0 : allTeamsPV["field_goal"];        
         atNPProb = allTeamsPV["no_play"] === undefined ? 0 : allTeamsPV["no_play"];
         atPProb = allTeamsPV["punt"] === undefined ? 0 : allTeamsPV["punt"];
@@ -536,17 +536,21 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         tNPProb = specTeamPV["no_play"] === undefined ? 0 : specTeamPV["no_play"];
         tPProb = specTeamPV["punt"] === undefined ? 0 : specTeamPV["punt"];
         tRProb = specTeamPV["run"] === undefined ? 0 : specTeamPV["run"];
+        
+        atFGyds = allTeamsMY["field_goal"] === undefined ? 0 : allTeamsMY["field_goal"];        
+        atNPyds = allTeamsMY["no_play"] === undefined ? 0 : allTeamsMY["no_play"];
+        atPyds = allTeamsMY["punt"] === undefined ? 0 : allTeamsMY["punt"];
+        atRyds = allTeamsMY["run"] === undefined ? 0 : allTeamsMY["run"];
 
-        fgData = [atFGProb, dFGProb, tFGProb];
-        npData = [atNPProb, dNPProb, tNPProb];
-        pData = [atPProb, dPProb, tPProb];
-        rData = [atRProb, dRProb, tRProb];
+        dFGyds = defTeamMY["field_goal"] === undefined ? 0 : defTeamMY["field_goal"];
+        dNPyds = defTeamMY["no_play"] === undefined ? 0 : defTeamMY["no_play"];
+        dPyds = defTeamMY["punt"] === undefined ? 0 : defTeamMY["punt"];
+        dRyds = defTeamMY["run"] === undefined ? 0 : defTeamMY["run"];
 
-        console.log(fgData.reduce((a, curr) => {return a + curr}, 0));
-        console.log(npData.reduce((a, curr) => {return a + curr}, 0));
-        console.log(pData.reduce((a, curr) => {return a + curr}, 0));
-        console.log(rData.reduce((a, curr) => {return a + curr}, 0));
-        console.log("----")
+        tFGyds = specTeamMY["field_goal"] === undefined ? 0 : specTeamMY["field_goal"];
+        tNPyds = specTeamMY["no_play"] === undefined ? 0 : specTeamMY["no_play"];
+        tPyds = specTeamMY["punt"] === undefined ? 0 : specTeamMY["punt"];
+        tRyds = specTeamMY["run"] === undefined ? 0 : specTeamMY["run"];
 
         histogram_data = [
             {
@@ -554,24 +558,36 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
                 "atProb": atFGProb,
                 "dProb": dFGProb,
                 "tProb": tFGProb,
+                "atyds": atFGyds,
+                "dyds": dFGyds,
+                "tyds": tFGyds
             },
             {
                 "action": "No Play",
                 "atProb": atNPProb,
                 "dProb": dNPProb,
                 "tProb": tNPProb,
+                "atyds": atNPyds,
+                "dyds": dNPyds,
+                "tyds": tNPyds
             },
             {
                 "action": "Punt",
                 "atProb": atPProb,
                 "dProb": dPProb,
                 "tProb": tPProb,
+                "atyds": atPyds,
+                "dyds": dPyds,
+                "tyds": tPyds
             },
             {
                 "action": "Run",
                 "atProb": atRProb,
                 "dProb": dRProb,
                 "tProb": tRProb,
+                "atyds": atRyds,
+                "dyds": dRyds,
+                "tyds": tRyds
             }
         ];
 
@@ -607,6 +623,15 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
                             .enter().append("g")
                             .attr("class", "action-group")
                             .attr("transform", d => `translate(${x0(d.action)}, 0)`);
+
+        var tooltip = d3.select("body")
+            .append("div")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("background", "white")
+            .text("a simple tooltip");
+        
         
         actionGroup.selectAll(".bar.all-teams")
             .data(d => [d])
@@ -616,7 +641,10 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .attr("x", d => x1('atProb'))
             .attr("y", d => y(d.atProb))
             .attr("width", x1.bandwidth())
-            .attr("height", d => height - y(d.atProb));
+            .attr("height", d => height - y(d.atProb))
+            .on("mouseover", function(d){tooltip.text(`Mean Yards: ${d.atyds}`); return tooltip.style("visibility", "visible");})
+            .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+            .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
         actionGroup.selectAll(".bar.defense-specific")
             .data(d => [d])
             .enter().append("rect")
@@ -625,7 +653,11 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .attr("x", d => x1('dProb'))
             .attr("y", d => y(d.dProb))
             .attr("width", x1.bandwidth())
-            .attr("height", d => height - y(d.dProb));
+            .attr("height", d => height - y(d.dProb))
+            .on("mouseover", function(d){tooltip.text(`Mean Yards: ${d.dyds}`); return tooltip.style("visibility", "visible");})
+            .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+            .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
         actionGroup.selectAll(".bar.team-specific")
             .data(d => [d])
             .enter().append("rect")
@@ -634,7 +666,10 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .attr("x", d => x1('tProb'))
             .attr("y", d => y(d.tProb))
             .attr("width", x1.bandwidth())
-            .attr("height", d => height - y(d.tProb));                
+            .attr("height", d => height - y(d.tProb))
+            .on("mouseover", function(d){tooltip.text(`Mean Yards: ${d.tyds}`); return tooltip.style("visibility", "visible");})
+            .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+            .on("mouseout", function(){return tooltip.style("visibility", "hidden");});              
 
         if (notifyDanger) { 
             dangerrect = mainSvg.append('rect')
