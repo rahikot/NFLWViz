@@ -478,7 +478,6 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         specTeamPV = data["historical_plays"]["prob_values"]["Team Specific"];
         notifyDanger = !!data["notify_danger"];
         rec = data["recommendation"];
-        console.log(notifyDanger);
         dangerrect = null;
         dangertext = null;
         mainSvg.select("#blueline").remove();
@@ -486,6 +485,7 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         mainSvg.select("#redline").remove();
         mainSvg.select("#dangerrect").remove();
         mainSvg.select("#dangertext").remove();
+        mainSvg.select("#histogram_svg").remove();
         const xScale = d3.scaleLinear().domain([0, allTeamsGV.length]).range([0, 300]);
         const yScale = d3.scaleLinear().domain([0, Math.max(d3.max(allTeamsGV), 0.65)]).range([300, 0]);
         const xAxis = d3.axisBottom(xScale);
@@ -522,25 +522,31 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
 
         // histogram
         
-        atFGProb = allTeamsPV["field_goal"];
-        atNPProb = allTeamsPV["no_play"];
-        atPProb = allTeamsPV["punt"];
-        atRProb = allTeamsPV["run"];
+        atFGProb = allTeamsPV["field_goal"] === undefined ? 0 : allTeamsPV["field_goal"];        
+        atNPProb = allTeamsPV["no_play"] === undefined ? 0 : allTeamsPV["no_play"];
+        atPProb = allTeamsPV["punt"] === undefined ? 0 : allTeamsPV["punt"];
+        atRProb = allTeamsPV["run"] === undefined ? 0 : allTeamsPV["run"];
 
-        dFGProb = defTeamPV["field_goal"];
-        dNPProb = defTeamPV["no_play"];
-        dPProb = defTeamPV["punt"];
-        dRProb = defTeamPV["run"];
-        console.log(data);
-        tFGProb = specTeamPV["field_goal"];
-        tNPProb = specTeamPV["no_play"];
-        tPProb = specTeamPV["punt"];
-        tRProb = specTeamPV["run"];
+        dFGProb = defTeamPV["field_goal"] === undefined ? 0 : defTeamPV["field_goal"];
+        dNPProb = defTeamPV["no_play"] === undefined ? 0 : defTeamPV["no_play"];
+        dPProb = defTeamPV["punt"] === undefined ? 0 : defTeamPV["punt"];
+        dRProb = defTeamPV["run"] === undefined ? 0 : defTeamPV["run"];
+
+        tFGProb = specTeamPV["field_goal"] === undefined ? 0 : specTeamPV["field_goal"];
+        tNPProb = specTeamPV["no_play"] === undefined ? 0 : specTeamPV["no_play"];
+        tPProb = specTeamPV["punt"] === undefined ? 0 : specTeamPV["punt"];
+        tRProb = specTeamPV["run"] === undefined ? 0 : specTeamPV["run"];
 
         fgData = [atFGProb, dFGProb, tFGProb];
         npData = [atNPProb, dNPProb, tNPProb];
         pData = [atPProb, dPProb, tPProb];
         rData = [atRProb, dRProb, tRProb];
+
+        console.log(fgData.reduce((a, curr) => {return a + curr}, 0));
+        console.log(npData.reduce((a, curr) => {return a + curr}, 0));
+        console.log(pData.reduce((a, curr) => {return a + curr}, 0));
+        console.log(rData.reduce((a, curr) => {return a + curr}, 0));
+        console.log("----")
 
         histogram_data = [
             {
@@ -568,74 +574,67 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
                 "tProb": tRProb,
             }
         ];
-        var x = d3.scaleBand().rangeRound([0, 800]).padding([0.1]);
-        var y = d3.scaleLinear().rangeRound([800, 0]);
 
-        x.domain(histogram_data.map(function(d) {return d.action;}));
-        y.domain([0, d3.max(histogram_data, function(d) { return d.atProb})]);
-        /*
-        mainSvg.selectAll("bar")
-            .data(histogram_data)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", x(d.action))
-            .attr("y", y(d.atProb))
-            .attr("width", x.bandwidth())
-            .attr("height", function(d) {return 1920 - y(d.atProb);});
+        // histogram
+        const margin = {
+            "top": 10,
+            "right": 30,
+            "bottom": 30,
+            "left":40
+        };
+        const width = 460 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        const histogramSvg = mainSvg.append("g")
+            .attr("transform", `translate(950, 350)`)
+            .attr('id', "histogram_svg");
+
+        const x0 = d3.scaleBand().range([0, width]).paddingInner(0.1);
+        const x1 = d3.scaleBand().padding(0.05)
+        const y = d3.scaleLinear().range([height, 0])
+
+        x0.domain(histogram_data.map(d => d.action));
+        x1.domain(['atProb', 'dProb', 'tProb']).range([0, x0.bandwidth()]);
+        y.domain([0,1]);
+
+        histogramSvg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x0));
+        histogramSvg.append("g").call(d3.axisLeft(y));
+
+        const actionGroup = histogramSvg.selectAll(".action-group")
+                            .data(histogram_data)
+                            .enter().append("g")
+                            .attr("class", "action-group")
+                            .attr("transform", d => `translate(${x0(d.action)}, 0)`);
         
-        mod_hdata = histogram_data.map(i => {
-            i.action = i.action;
-            return i;
-            });
-        
-        var xScale0 = d3.scaleBand().range([0, 500]).padding([0.2]);
-        var xScale1 = d3.scaleBand();
-        var yScaleH = d3.scaleLinear().range([500, 0]);
-
-        xScale0.domain(mod_hdata.map(d => d.action));
-        xScale1.domain(['atProb', 'dProb', 'tProb']).range([0, 500]);
-        yScaleH.domain([0, 1]);
-
-        var model_name = mainSvg.selectAll(".model_name")
-            .data(mod_hdata)
-            .enter().append("g")
-            .attr("class", "model_name")
-            .attr("transform", d => `translate(${xScale0(d.action)},0)`);
-
-        model_name.selectAll(".bar.field1")
+        actionGroup.selectAll(".bar.all-teams")
             .data(d => [d])
-            .enter()
-            .append("rect")
-            .attr("class", "bar field1")
-            .style("fill","blue")
-            .attr("x", d => xScale1(d.atProb))
-            .attr("y", d => yScaleH(d.atProb))
-            .attr("width", 20)
-            .attr("height", d => {return yScaleH(d.atProb)});
-
-        model_name.selectAll(".bar.field2")
+            .enter().append("rect")
+            .attr("class", "bar all-teams")
+            .style("fill", "blue")
+            .attr("x", d => x1('atProb'))
+            .attr("y", d => y(d.atProb))
+            .attr("width", x1.bandwidth())
+            .attr("height", d => height - y(d.atProb));
+        actionGroup.selectAll(".bar.defense-specific")
             .data(d => [d])
-            .enter()
-            .append("rect")
-            .attr("class", "bar field2")
-            .style("fill","red")
-            .attr("x", d => xScale1(d.dProb))
-            .attr("y", d => yScaleH(d.dProb))
-            .attr("width", 20)
-            .attr("height", d => {return yScaleH(d.dProb)});
-        
-        model_name.selectAll(".bar.field3")
+            .enter().append("rect")
+            .attr("class", "bar defense-specific")
+            .style("fill", "green")
+            .attr("x", d => x1('dProb'))
+            .attr("y", d => y(d.dProb))
+            .attr("width", x1.bandwidth())
+            .attr("height", d => height - y(d.dProb));
+        actionGroup.selectAll(".bar.team-specific")
             .data(d => [d])
-            .enter()
-            .append("rect")
-            .attr("class", "bar field3")
-            .style("fill","green")
-            .attr("x", d => xScale1(d.tProb))
-            .attr("y", d => yScaleH(d.tProb))
-            .attr("width", 20)
-            .attr("height", d => {return yScaleH(d.tProb)});
-        */
+            .enter().append("rect")
+            .attr("class", "bar team-specific")
+            .style("fill", "red")
+            .attr("x", d => x1('tProb'))
+            .attr("y", d => y(d.tProb))
+            .attr("width", x1.bandwidth())
+            .attr("height", d => height - y(d.tProb));                
 
         if (notifyDanger) { 
             dangerrect = mainSvg.append('rect')
@@ -675,7 +674,7 @@ function setUpGraphs(mainSvg, width) {
         .call(yAxis);
     
     mainSvg.append('text')
-        .attr('transform', 'translate(1035, 333)')
+        .attr('transform', 'translate(1045, 25)')
         .text('Gower Values');
 
     mainSvg.append('rect')
@@ -711,56 +710,41 @@ function setUpGraphs(mainSvg, width) {
         .style('font-size', '9px')
         .text("Specified Team");
 
-    // histogram
-    const xScaleH = d3.scaleBand().domain(["Field Goal", "No Play", "Punt", "Run"]).range([0, 400]).padding([0.2]);
-    const yScaleH = d3.scaleLinear().domain([0, 1]).range([300, 0]);
-    const xAxisH = d3.axisBottom(xScaleH).tickValues(["Field Goal", "No Play", "Punt", "Run"]);
-    const yAxisH = d3.axisLeft(yScaleH).ticks(10);
-
-    mainSvg.append('g')
-        .attr('transform', 'translate(950, 650)')
-        .attr('id', 'h_xaxis')
-        .call(xAxisH);
-
-    mainSvg.append('g')
-        .attr('transform', 'translate(950, 350)')
-        .attr('id', 'h_yaxis')
-        .call(yAxisH);
-    
+    // histogram    
     mainSvg.append('text')
-        .attr('transform', 'translate(1100, 690)')
+        .attr('transform', 'translate(1100, 748)')
         .text('Success Probabilities');
 
     mainSvg.append('rect')
-        .attr('transform', 'translate(980, 715)')
+        .attr('transform', 'translate(1040, 760)')
         .attr('fill', 'blue')
         .attr('width', 10)
         .attr('height', 10);
 
     mainSvg.append('rect')
-        .attr('transform', 'translate(1040, 715)')
+        .attr('transform', 'translate(1100, 760)')
         .attr('fill', 'red')
         .attr('width', 10)
         .attr('height', 10);
     
     mainSvg.append('rect')
-        .attr('transform', 'translate(1135, 715)')
+        .attr('transform', 'translate(1195, 760)')
         .attr('fill', 'green')
         .attr('width', 10)
         .attr('height', 10);
     
     mainSvg.append('text')
-        .attr('transform', 'translate(995, 722)')
+        .attr('transform', 'translate(1055, 767)')
         .style('font-size', '9px')
         .text("All Teams");
     
     mainSvg.append('text')
-        .attr('transform', 'translate(1055, 722)')
+        .attr('transform', 'translate(1115, 767)')
         .style('font-size', '9px')
         .text("Defense Specified");
 
     mainSvg.append('text')
-        .attr('transform', 'translate(1150, 722)')
+        .attr('transform', 'translate(1210, 767)')
         .style('font-size', '9px')
         .text("Specified Team");
 }
