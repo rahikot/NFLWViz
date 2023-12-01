@@ -407,7 +407,6 @@ function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awa
     };
 
     const intervalID = setInterval(updateLocation, interval);
-    mainSvg.selectAll(".circle, .circle-label").remove();
 
 }
 

@@ -283,11 +283,15 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         slider.min(0).max(Object.keys(sliderMapping).length - 1)
         slider.value(0);
         sliderGroup.call(slider);
-
+        mainSvg.selectAll(".circle, .circle-label").remove();
+        football.style("display", "none")
+        d3.select("#scrimmage").remove();
+        d3.select("#firstDown").remove();
       })
 
 
       slider.on('end', function(value) {
+          mainSvg.selectAll(".circle, .circle-label").remove();
           addMarkers(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           d3.select("#playNumber").text(playDatabyId[sliderMapping[value]].playDescription)
           d3.select("#playQuarter").text("Quarter: " + playDatabyId[sliderMapping[value]].quarter)
