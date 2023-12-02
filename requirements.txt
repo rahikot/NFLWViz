@@ -1,3 +1,5 @@
 gower
 flask
 flask_cors
+pandas
+numpy
