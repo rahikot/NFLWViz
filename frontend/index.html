@@ -29,9 +29,7 @@
     </div>
    
     <p class="playStats", id="playNumber"></p>
-    <p class="playStats", id="playQuarter"></p>
-    <p class="playStats", id="playDown"></p>
-    <p class="playStats", id="playScore"></p>
+    
   </div>
   
   
@@ -304,9 +302,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           mainSvg.selectAll(".circle, .circle-label").remove();
           addMarkers(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           d3.select("#playNumber").text(playDatabyId[sliderMapping[value]].playDescription)
-          d3.select("#playQuarter").text("Quarter: " + playDatabyId[sliderMapping[value]].quarter)
-          d3.select("#playDown").text("Down: " + playDatabyId[sliderMapping[value]].down)
-          d3.select("#playScore").text("Score: " + playDatabyId[sliderMapping[value]].preSnapHomeScore +" : " + playDatabyId[sliderMapping[value]].preSnapVisitorScore)
+        
           football.style("display", "block")
           updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr,  playerDatabyId);
