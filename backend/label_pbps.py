@@ -3,6 +3,9 @@ import pandas as pd
 import nfl_data_py as nfl
 from pprint import pprint
 import pandas as pd
+import os
+
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 # WHOLE DATASET
 #df = nfl.import_pbp_data([i for i in range(1999,2021)], downcast=True, cache=False, alt_path=None)

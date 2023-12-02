@@ -3,10 +3,25 @@
     grid-template-rows: auto auto;
     grid-template-columns: repeat(4, 1fr);
     gap: 1em;
-    
-    /* box-shadow: 0 10px 10px  rgba(0, 0, 0, 0.2); */
     border-radius: 20px;
-    /* background-color: #fdf0d5;  */
+    
+    background-color: #b1d2e7;
+    padding: 20px;
+    margin: 20px;
+    border: 2px solid #003049;
+    border-radius: 10prgb(166, 204, 228);
+    box-shadow: 0 2px 6px  rgba(0, 0, 0, 0.2);
+    font-family: "San Francisco", Arial, sans-seri;
+    font-size: 20px;
+    color: #003049;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+  
+   
+    
     
     
 
@@ -19,8 +34,15 @@ h1 {
 }
 select {
     
-    border: 2px solid #780000; 
-    border-radius: 20px;
+   /* NFL game select*/
+    background-color: #c1121f;
+    color: white;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
     
     -webkit-appearance: none; /* For Safari/Chrome */
     -moz-appearance: none; /* For Firefox */
@@ -43,6 +65,7 @@ p.gameTitles {
     font-family: "San Francisco", Arial, sans-seri;
     padding-left: 10px; 
 }
+
 p.gameStats {
     color: #003049;
     font-weight: bold;
@@ -118,4 +141,8 @@ p.gameStats {
 
 }
 
-  
+.axis text,
+.slider text {
+  font-size: 18px;
+  font-weight: bold;
+}

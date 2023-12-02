@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from similar_plays import recommend_play, find_similar_scenarios
 import pandas as  pd
 #from stats import specify_defense, specify_team, produce_dataframes, historical_play_types
@@ -7,6 +8,7 @@ import warnings
 warnings.filterwarnings("ignore")
 from collections import Counter
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/get_play_details', methods=['GET'])
 def get_play_details():
@@ -37,7 +39,7 @@ def get_play_details():
         "gower_values" : return_gower_values(similar_df, similar_df_specified, similar_df_defensive),
         "notify_danger" : notify_danger(similar_df_defensive, [request_data["quarter"], request_data["down"], request_data["preSnapHomeScore"], request_data["preSnapVisitorScore"], offensive_team])
     })
-    
+
 
 if __name__ == '__main__':
     """ WHAT I REQUIRE:
