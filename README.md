@@ -20,5 +20,5 @@ Neil Patel, Rahi Kotadia, Arnav Hiray, Abhinav Gullapalli, Sarang Desai
 
     b) On macOS or Linux, run ```$source cse6242team030fall2023/bin/activate```.
 
-4. From the ```./``` directory, install required dependencies with ```$pip install -r requirements.txt```
+4. From the ```./``` directory, install required dependencies with ```$pip install -r requirements.txt```.
 5. From the ```./backend``` directory, run ```$python backend_server.py```. Flask server should start on ```localhost:5000```.
