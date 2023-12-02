@@ -19,7 +19,7 @@ def get_play_details():
     defensive_team = request_data["defensiveTeam"]
 
     df = df[df["down"] == int(request_data["down"])]
-
+    print("Finished Processing")
     #If 4th down is invoked
     if int(request_data["down"]) == 4:
         df = df[df["down"] == 4]
@@ -29,14 +29,13 @@ def get_play_details():
 
     recommendation = recommend_play(similar_df, pd.Series(request_data))
 
-    
 
     return jsonify({
         "received_data": request_data,
         "recommendation": recommendation,
         "historical_plays" : historical_play_types(similar_df, similar_df_specified, similar_df_defensive),
         "gower_values" : return_gower_values(similar_df, similar_df_specified, similar_df_defensive),
-        "notify_danger" : notify_danger(similar_df_defensive)
+        "notify_danger" : notify_danger(similar_df_defensive, [request_data["quarter"], request_data["down"], request_data["preSnapHomeScore"], request_data["preSnapVisitorScore"], offensive_team])
     })
     
 
