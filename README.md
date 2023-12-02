@@ -32,7 +32,7 @@ Our machine learning models include a LightGBM model to predict the defensive pl
 
     a) set up virtual environment
 
-        i) run ```$pip install virtualenv``
+        i) run ```$pip install virtualenv```
 
         ii) run ```$virtualenv cse6242team030fall2023``` to create the virtual environment for this project
 
