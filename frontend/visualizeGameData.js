@@ -480,18 +480,28 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         rec = data["recommendation"];
         dangerrect = null;
         dangertext = null;
+        console.log(data);
         mainSvg.select("#blueline").remove();
         mainSvg.select("#greenline").remove();
         mainSvg.select("#redline").remove();
         mainSvg.select("#dangerrect").remove();
         mainSvg.select("#dangertext").remove();
         mainSvg.select("#histogram_svg").remove();
+        mainSvg.select('#gv_xaxis').remove();
+        mainSvg.select('#gv_yaxis').remove();
         const xScale = d3.scaleLinear().domain([0, allTeamsGV.length]).range([0, 300]);
         const yScale = d3.scaleLinear().domain([0, Math.max(d3.max(allTeamsGV), 0.65)]).range([300, 0]);
         const xAxis = d3.axisBottom(xScale);
         const yAxis = d3.axisLeft(yScale).ticks(10);
-        mainSvg.select('#gv_xaxis').transition().duration(250).call(xAxis);
-        mainSvg.select('#gv_yaxis').transition().duration(250).call(yAxis);
+        mainSvg.append('g')
+            .attr('transform', 'translate(950, 300)')
+            .attr('id', 'gv_xaxis')
+            .call(xAxis);
+
+        mainSvg.append('g')
+            .attr('transform', 'translate(950, 0)')
+            .attr('id', 'gv_yaxis')
+            .call(yAxis);
         const line = d3.line().x((li, i) => xScale(i)).y(li => yScale(li));
         mainSvg.append('path')
         .data([allTeamsGV])
@@ -526,31 +536,37 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         atNPProb = allTeamsPV["no_play"] === undefined ? 0 : allTeamsPV["no_play"];
         atPProb = allTeamsPV["punt"] === undefined ? 0 : allTeamsPV["punt"];
         atRProb = allTeamsPV["run"] === undefined ? 0 : allTeamsPV["run"];
+        atPsProb = allTeamsPV["pass"] === undefined ? 0 : allTeamsPV["pass"];
 
         dFGProb = defTeamPV["field_goal"] === undefined ? 0 : defTeamPV["field_goal"];
         dNPProb = defTeamPV["no_play"] === undefined ? 0 : defTeamPV["no_play"];
         dPProb = defTeamPV["punt"] === undefined ? 0 : defTeamPV["punt"];
         dRProb = defTeamPV["run"] === undefined ? 0 : defTeamPV["run"];
+        dPsProb = defTeamPV["pass"] === undefined ? 0 : defTeamPV["pass"];
 
         tFGProb = specTeamPV["field_goal"] === undefined ? 0 : specTeamPV["field_goal"];
         tNPProb = specTeamPV["no_play"] === undefined ? 0 : specTeamPV["no_play"];
         tPProb = specTeamPV["punt"] === undefined ? 0 : specTeamPV["punt"];
         tRProb = specTeamPV["run"] === undefined ? 0 : specTeamPV["run"];
+        tPsProb = specTeamPV["pass"] === undefined ? 0 : specTeamPV["pass"];
         
         atFGyds = allTeamsMY["field_goal"] === undefined ? 0 : allTeamsMY["field_goal"];        
         atNPyds = allTeamsMY["no_play"] === undefined ? 0 : allTeamsMY["no_play"];
         atPyds = allTeamsMY["punt"] === undefined ? 0 : allTeamsMY["punt"];
         atRyds = allTeamsMY["run"] === undefined ? 0 : allTeamsMY["run"];
+        atPsyds = allTeamsMY["pass"] === undefined ? 0 : allTeamsMY["pass"];
 
         dFGyds = defTeamMY["field_goal"] === undefined ? 0 : defTeamMY["field_goal"];
         dNPyds = defTeamMY["no_play"] === undefined ? 0 : defTeamMY["no_play"];
         dPyds = defTeamMY["punt"] === undefined ? 0 : defTeamMY["punt"];
         dRyds = defTeamMY["run"] === undefined ? 0 : defTeamMY["run"];
+        dPsyds = defTeamMY["pass"] === undefined ? 0 : defTeamMY["pass"];
 
         tFGyds = specTeamMY["field_goal"] === undefined ? 0 : specTeamMY["field_goal"];
         tNPyds = specTeamMY["no_play"] === undefined ? 0 : specTeamMY["no_play"];
         tPyds = specTeamMY["punt"] === undefined ? 0 : specTeamMY["punt"];
         tRyds = specTeamMY["run"] === undefined ? 0 : specTeamMY["run"];
+        tPsyds = specTeamMY["pass"] === undefined ? 0 : specTeamMY["pass"];
 
         histogram_data = [
             {
@@ -560,7 +576,8 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
                 "tProb": tFGProb,
                 "atyds": atFGyds,
                 "dyds": dFGyds,
-                "tyds": tFGyds
+                "tyds": tFGyds,
+                "psyds": atPsProb
             },
             {
                 "action": "No Play",
@@ -588,6 +605,15 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
                 "atyds": atRyds,
                 "dyds": dRyds,
                 "tyds": tRyds
+            },
+            {
+                "action": "Pass",
+                "atProb": atPsProb,
+                "dProb": dPsProb,
+                "tProb": tPsProb,
+                "atyds": atPsyds,
+                "dyds": dPsyds,
+                "tyds": tPsyds
             }
         ];
 
@@ -606,8 +632,8 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .attr('id', "histogram_svg");
 
         const x0 = d3.scaleBand().range([0, width]).paddingInner(0.1);
-        const x1 = d3.scaleBand().padding(0.05)
-        const y = d3.scaleLinear().range([height, 0])
+        const x1 = d3.scaleBand().padding(0.05);
+        const y = d3.scaleLinear().range([height, 0]);
 
         x0.domain(histogram_data.map(d => d.action));
         x1.domain(['atProb', 'dProb', 'tProb']).range([0, x0.bandwidth()]);
@@ -631,7 +657,6 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .style("visibility", "hidden")
             .style("background", "white")
             .text("a simple tooltip");
-        
         
         actionGroup.selectAll(".bar.all-teams")
             .data(d => [d])
@@ -710,6 +735,7 @@ function setUpGraphs(mainSvg, width) {
     
     mainSvg.append('text')
         .attr('transform', 'translate(1045, 25)')
+        .attr('id', 'gv_text')
         .text('Gower Values');
 
     mainSvg.append('rect')
@@ -782,4 +808,19 @@ function setUpGraphs(mainSvg, width) {
         .attr('transform', 'translate(1210, 767)')
         .style('font-size', '9px')
         .text("Specified Team");
+}
+
+var firstChange = false;
+function teardownGraphs(mainSvg) {
+    if (firstChange) {
+        return;
+    }
+    mainSvg.select('#gv_xaxis').remove();
+    mainSvg.select('#gv_yaxis').remove();
+    mainSvg.select('#blueline').remove();
+    mainSvg.select('#redline').remove();
+    mainSvg.select('#greenline').remove();
+    mainSvg.select('#histogram_svg').remove();
+    mainSvg.select('#dangerrect').remove();
+    mainSvg.select('#dangertext').remove();
 }

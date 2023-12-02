@@ -274,6 +274,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         const awayColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${awayTeamAbbr}`) || "blue";
 
         populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTeamAbbr);
+        teardownGraphs(mainSvg);
         setUpGraphs(mainSvg, width)
         d3.select("#season").text(gameDatabyId[selectedGameId].season)
         d3.select("#date").text("Game Date: "+ gameDatabyId[selectedGameId].gameDate); 
