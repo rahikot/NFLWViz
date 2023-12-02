@@ -1,7 +1,10 @@
+numpy==1.21
+pandas
+joblib
+scikit-learn
 gower
 flask
 flask_cors
-pandas
-numpy
 matplotlib
 statsmodels
+nfl_data_py

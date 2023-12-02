@@ -13,7 +13,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # IF FOR DEMO/TESTING- ONLY TWO YEARS
 df = nfl.import_pbp_data([i for i in range(2019,2021)], downcast=True, cache=False, alt_path=None)
 
-lgbm = joblib.load('backend/lgbm.pkl')
+lgbm = joblib.load('./lgbm.pkl')
 
 
 
@@ -152,4 +152,4 @@ feats = feats[order]
 
 plays_df["predDef"] = lgbm.predict(feats[order])
 plays_df = plays_df.rename(columns={"yardline_100": "yardlineNumber", "qtr" : "quarter", "time":"gameClock", "ydstogo":"yardsToGo", "total_home_score": "preSnapHomeScore", "total_away_score": "preSnapVisitorScore"})
-plays_df.reset_index().drop("index", axis=1).to_csv("backend/data/plays.csv")
+plays_df.reset_index().drop("index", axis=1).to_csv("./data/plays.csv")
