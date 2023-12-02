@@ -2,16 +2,16 @@ pip install --upgrade pip
 
 pip install virtualenv
 
-virtualenv dva005
+virtualenv cse6242team030fall2023
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        source dva005/bin/activate
+        source cse6242team030fall2023/bin/activate
         # cse6242team030fall2023
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-        source dva005/bin/activate
+        source cse6242team030fall2023/bin/activate
         # Mac OSX
 else
-      .\dva005\Scripts\activate
+      .\cse6242team030fall2023\Scripts\activate
 
 fi
 
