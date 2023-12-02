@@ -1,6 +1,12 @@
 # DVA-Project
 
 
+## Georgia Tech CSE 6242 Fall 2023 Team 030 Final Project
+
+NFL W-VIZ
+
+Neil Patel, Rahi Kotadia, Arnav Hiray, Abhinav Gullapalli, Sarang Desai
+
 ## Frontend
 1. Download ```week1.csv``` from https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data?select=week1.csv and save ```week1.csv``` in the ```./frontend``` directory.
 2. From the ```./frontend``` directory, run ```$python -m http.server```. The frontend should be accessible at ```localhost:8000```.
