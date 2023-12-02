@@ -1,11 +1,14 @@
-# DVA-Project
-
-
-## Georgia Tech CSE 6242 Fall 2023 Team 030 Final Project
+# DVA-Project - Georgia Tech CSE 6242 Fall 2023 Team 030 Final Project
 
 NFL W-VIZ
 
 Neil Patel, Rahi Kotadia, Arnav Hiray, Abhinav Gullapalli, Sarang Desai
+
+## Description
+
+We visualize and predict plays from Week 1 of the Kaggle 2023 Big Data Bowl competition dataset. Frontend has been developed with HTML, CSS, Javascript, and D3.js. Backend has been developed with Python and Flask to run server-side machine learning model inference in real-time and compute statistics for visualizations on the frontend.
+
+## Installation & Execution
 
 ## Frontend
 1. Download ```week1.csv``` from https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data?select=week1.csv and save ```week1.csv``` in the ```./frontend``` directory.
