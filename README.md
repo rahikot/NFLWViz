@@ -9,7 +9,7 @@
 1. Run ```$pip install virtualenv``` if you do not have Python virtual environments set up locally.
 2. Run ```$virtualenv cse6242team030fall2023``` to create the a virtual environment for this project.
 3. Activate the virtual environment.
-3. a) On Windows, run ```$.\cse6242team030fall2023\Scripts\activate```.
-3. b) On macOS or Linux, run ```$source cse6242team030fall2023/bin/activate```.
+    a) On Windows, run ```$.\cse6242team030fall2023\Scripts\activate```.
+    b) On macOS or Linux, run ```$source cse6242team030fall2023/bin/activate```.
 4. Install required dependencies with ```$pip install requirements.txt```
-4. From the ```./backend``` directory, run ```$python backend_server.py```. Flask server should start on ```localhost:5000```.
+5. From the ```./backend``` directory, run ```$python backend_server.py```. Flask server should start on ```localhost:5000```.
