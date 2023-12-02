@@ -309,9 +309,9 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           d3.select("#playScore").text("Score: " + playDatabyId[sliderMapping[value]].preSnapHomeScore +" : " + playDatabyId[sliderMapping[value]].preSnapVisitorScore)
           football.style("display", "block")
           updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
-          visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr);
+          visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr,  playerDatabyId);
           //backendCall(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
-          visualizeStats(playDatabyId[sliderMapping[value]], sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr, playerDatabyId)
+          visualizeStats(playDatabyId[sliderMapping[value]], sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
   });
 
 

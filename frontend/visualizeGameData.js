@@ -58,6 +58,7 @@ function visualizePlayers(playerData, color, playerDataById) {
     //make tooltip look modern
     .style("border-radius", "10px").style("padding", "10px").style("color", "white").style("font-size", "16px").offset([50,100])
     .style("background-color", "black").style("border", "solid").style("border-width", "2px").style("border-color", color);
+    
     mainSvg.call(toolTip)
     var circles = mainSvg.selectAll("circle").data(playerData, function(d) {
         return d.jerseyNumber + d.team;
