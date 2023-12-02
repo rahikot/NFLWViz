@@ -32,9 +32,9 @@ Our machine learning models include a LightGBM model to predict the defensive pl
 
     a) set up virtual environment
 
-        1. run ```$pip install virtualenv```
+        1. run $pip install virtualenv
 
-        2. run ```$virtualenv cse6242team030fall2023``` to create the virtual environment for this project
+        2. run $virtualenv cse6242team030fall2023 to create the virtual environment for this project
 
         3. activate the virtual environment (script only tested on macOS, steps can be manually performed if facing errors on other OS)
     
