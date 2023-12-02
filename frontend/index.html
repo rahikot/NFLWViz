@@ -39,7 +39,7 @@
   <script>
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
-    const width = 960 - margin.left - margin.right;
+    const width = 2500 - margin.left - margin.right;
     const height = 960 - margin.top - margin.bottom;
 
     // all svg's should be inside mainSvg
@@ -274,6 +274,8 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         const awayColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${awayTeamAbbr}`) || "blue";
 
         populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTeamAbbr);
+        teardownGraphs(mainSvg);
+        setUpGraphs(mainSvg, width)
         d3.select("#season").text(gameDatabyId[selectedGameId].season)
         d3.select("#date").text("Game Date: "+ gameDatabyId[selectedGameId].gameDate); 
 
@@ -300,7 +302,8 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           football.style("display", "block")
           updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr);
-          backendCall(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
+          //backendCall(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
+          visualizeStats(playDatabyId[sliderMapping[value]], sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
   });
 
 
