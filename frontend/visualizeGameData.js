@@ -51,14 +51,19 @@ function getSliderMapping(playIdToRows) {
 
 }
 
-function visualizePlayers(playerData, color) {
-    
+function visualizePlayers(playerData, color, playerDataById) {
+    var toolTip = d3.tip().attr('id', "tooltip").attr('class', 'd3-tip').html(function(d){
+        return "Name: " + playerDataById[d.nflId].displayName + "<br>Position: " +playerDataById[d.nflId].officialPosition
+    })
+    //make tooltip look modern
+    .style("border-radius", "10px").style("padding", "10px").style("color", "white").style("font-size", "16px").offset([50,100])
+    .style("background-color", "black").style("border", "solid").style("border-width", "2px").style("border-color", color);
+    mainSvg.call(toolTip)
     var circles = mainSvg.selectAll("circle").data(playerData, function(d) {
         return d.jerseyNumber + d.team;
     });
     circles.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
-
     circles.enter().append("circle")
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; })
@@ -67,7 +72,9 @@ function visualizePlayers(playerData, color) {
         .attr("stroke", color)
         .attr("stroke-width", 2)
         .attr("id", function(d) { return "circle-" + d.jerseyNumber + "-" + d.team; })
-        .attr("class", "circle-label");
+        .attr("class", "circle-label")
+        
+
 
     circles.enter().append("text")
         .attr("x", function(d) { return d.x; })
@@ -78,7 +85,9 @@ function visualizePlayers(playerData, color) {
         .attr("fill", color)
         .text(function(d) { return d.jerseyNumber; })
         .attr("id", function(d) { return "text-" + d.jerseyNumber + "-" + d.team; })
-        .attr("class", "circle-label");
+        .attr("class", "circle-label")
+        .on('mouseover', toolTip.show)
+        .on('mouseout', toolTip.hide)
 
     circles.each(function(d) {
         const textId = "text-" + d.jerseyNumber + "-" + d.team;
@@ -362,7 +371,7 @@ function addMarkers(mainSvg, playData, homeTeam, awayTeam) {
 
 }
 
-function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awayTeam) {
+function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awayTeam, playerDataById) {
     
     // Vanilla JS to make a GET request
     // `raw_text${}`
@@ -409,6 +418,7 @@ function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awa
 
         if (index < keys.length) {
             var currTimeData = keys[index]
+            
             var value = timeToData[currTimeData]
             var awayData = value.awayTeam
             var homeData = value.homeTeam
@@ -417,8 +427,8 @@ function visualizePlay(allPlayData, playNumber, mainSvg, interval, homeTeam, awa
                 throw new Error(`For play # '${playNumber}', multiple (x, y) coordinates for football
                 found at datapoint '${currTimeData}'`)
             }
-            visualizePlayers(homeData, homeColor);
-            visualizePlayers(awayData, awayColor);
+            visualizePlayers(homeData, homeColor, playerDataById);
+            visualizePlayers(awayData, awayColor, playerDataById);
             mainSvg.select(".football").attr("cx", footballData[0].x).attr("cy", footballData[0].y);
             index++;
 

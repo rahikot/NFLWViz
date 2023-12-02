@@ -7,6 +7,7 @@
   <script type="text/javascript" src="lib/d3.v5.min.js"></script>
   <script type="text/javascript" src="visualizeGameData.js"></script>
   <script type="text/javascript" src="lib/d3-simple-slider.js"></script>
+  <script type="text/javascript" src="lib/d3-tip.min.js"></script>
   <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
@@ -146,6 +147,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         gameId: +d.gameId,
         playId: +d.playId,
         frameId: +d.frameId,
+        nflId: +d.nflId,
         jerseyNumber: +d.jerseyNumber,
         time: d.time.toString(),
         team: d.team,
@@ -163,19 +165,21 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     
     var gameData = d3.csv("games.csv")
     var playData = d3.csv("plays.csv")
+    var playerData = d3.csv("players.csv")
+
 
     Promise.all([
-      weekData, gameData, playData
+      weekData, gameData, playData, playerData
     ]).then(
       function(values){
                 var error = ""
-                ready("", values[0], values[1], values[2])
+                ready("", values[0], values[1], values[2], values[3])
           }
   
     );
 
 
-    function ready(error, weekData, gameData, playData) {
+    function ready(error, weekData, gameData, playData, playerData) {
       const dataDictionary = {};
 
       var gameDatabyId = {}
@@ -183,6 +187,10 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         gameDatabyId[rowData.gameId] = rowData
       })
 
+      var playerDatabyId = {}
+      playerData.forEach(rowData => {
+        playerDatabyId[rowData.nflId] = rowData
+      })
 
       var defaultGame = gameData[0].gameId
       var filteredPlayData = playData
@@ -291,7 +299,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         d3.select("#firstDown").remove();
       })
 
-
+      // Display play information wehn slider is moved
       slider.on('end', function(value) {
           mainSvg.selectAll(".circle, .circle-label").remove();
           addMarkers(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
@@ -303,7 +311,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr);
           //backendCall(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
-          visualizeStats(playDatabyId[sliderMapping[value]], sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
+          visualizeStats(playDatabyId[sliderMapping[value]], sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr, playerDatabyId)
   });
 
 
