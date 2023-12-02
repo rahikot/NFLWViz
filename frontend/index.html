@@ -7,6 +7,7 @@
   <script type="text/javascript" src="lib/d3.v5.min.js"></script>
   <script type="text/javascript" src="visualizeGameData.js"></script>
   <script type="text/javascript" src="lib/d3-simple-slider.js"></script>
+  <script type="text/javascript" src="lib/d3-tip.min.js"></script>
   <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
@@ -28,9 +29,7 @@
     </div>
    
     <p class="playStats", id="playNumber"></p>
-    <p class="playStats", id="playQuarter"></p>
-    <p class="playStats", id="playDown"></p>
-    <p class="playStats", id="playScore"></p>
+    
   </div>
   
   
@@ -39,7 +38,7 @@
   <script>
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
-    const width = 960 - margin.left - margin.right;
+    const width = 2500 - margin.left - margin.right;
     const height = 960 - margin.top - margin.bottom;
 
     // all svg's should be inside mainSvg
@@ -84,14 +83,25 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     var sliderGroup = mainSvg.append('g')
     .attr('transform', 'translate(0,700)');
 
+
     var slider = d3.sliderHorizontal()
         .step(1)
         .width(900)
         .displayValue(true)
         .on('onchange', function(val) {
-            d3.select('#value').text(val);
-        });
+            d3.select('#value').text("Play # " + val);
+        })
 
+    playNumberText = sliderGroup.append("text")
+          .attr("x", 900/2)
+          .attr("y", 100)
+          .text("Play #")
+          .style("font-size", "32px")
+          .style("font-weight", "bold")
+
+    textWidth = playNumberText.node().getBBox().width;
+    playNumberText.attr("x", 900/2 - textWidth / 2)
+    playNumberText.style("display", "none")
 
     const homeTeam = mainSvg.append("g")
       .attr("transform", "translate(250, 575)")
@@ -135,6 +145,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         gameId: +d.gameId,
         playId: +d.playId,
         frameId: +d.frameId,
+        nflId: +d.nflId,
         jerseyNumber: +d.jerseyNumber,
         time: d.time.toString(),
         team: d.team,
@@ -152,19 +163,21 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     
     var gameData = d3.csv("games.csv")
     var playData = d3.csv("plays.csv")
+    var playerData = d3.csv("players.csv")
+
 
     Promise.all([
-      weekData, gameData, playData
+      weekData, gameData, playData, playerData
     ]).then(
       function(values){
                 var error = ""
-                ready("", values[0], values[1], values[2])
+                ready("", values[0], values[1], values[2], values[3])
           }
   
     );
 
 
-    function ready(error, weekData, gameData, playData) {
+    function ready(error, weekData, gameData, playData, playerData) {
       const dataDictionary = {};
 
       var gameDatabyId = {}
@@ -172,6 +185,10 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         gameDatabyId[rowData.gameId] = rowData
       })
 
+      var playerDatabyId = {}
+      playerData.forEach(rowData => {
+        playerDatabyId[rowData.nflId] = rowData
+      })
 
       var defaultGame = gameData[0].gameId
       var filteredPlayData = playData
@@ -257,10 +274,14 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         awayTeamAbbr = gameDatabyId[selectedGameId].visitorTeamAbbr
         displayTeams(textSvg, homeTeamAbbr, awayTeamAbbr)
 
+        playNumberText.style("display", "block")
+
         const homeColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${homeTeamAbbr}`) || "blue";
         const awayColor = getComputedStyle(document.documentElement).getPropertyValue(`--team-color-${awayTeamAbbr}`) || "blue";
 
         populateScoreBoard(mainSvg, awayColor, homeColor, homeTeamAbbr, awayTeamAbbr);
+        teardownGraphs(mainSvg);
+        setUpGraphs(mainSvg, width)
         d3.select("#season").text(gameDatabyId[selectedGameId].season)
         d3.select("#date").text("Game Date: "+ gameDatabyId[selectedGameId].gameDate); 
 
@@ -270,18 +291,23 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
         slider.min(0).max(Object.keys(sliderMapping).length - 1)
         slider.value(0);
         sliderGroup.call(slider);
+        mainSvg.selectAll(".circle, .circle-label").remove();
+        football.style("display", "none")
+        d3.select("#scrimmage").remove();
+        d3.select("#firstDown").remove();
       })
 
-
+      // Display play information wehn slider is moved
       slider.on('end', function(value) {
+          mainSvg.selectAll(".circle, .circle-label").remove();
           addMarkers(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           d3.select("#playNumber").text(playDatabyId[sliderMapping[value]].playDescription)
-          d3.select("#playQuarter").text("Quarter: " + playDatabyId[sliderMapping[value]].quarter)
-          d3.select("#playDown").text("Down: " + playDatabyId[sliderMapping[value]].down)
-          d3.select("#playScore").text("Score: " + playDatabyId[sliderMapping[value]].preSnapHomeScore +" : " + playDatabyId[sliderMapping[value]].preSnapVisitorScore)
+        
           football.style("display", "block")
           updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
-          visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr);
+          visualizePlay(dataByGameId[selectedGameId].playIdToRows, sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr,  playerDatabyId);
+          //backendCall(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
+          visualizeStats(playDatabyId[sliderMapping[value]], sliderMapping[value], mainSvg, interval, gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
   });
 
 

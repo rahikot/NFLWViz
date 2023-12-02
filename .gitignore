@@ -15,4 +15,7 @@ __pycache__/
 .project
 .settings/
 .vscode/*
-backend/data/plays.csv
+
+*/.DS_Store
+.DS_Store
+# backend/data/plays.csv

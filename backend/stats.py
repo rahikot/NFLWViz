@@ -12,9 +12,9 @@ def produce_dataframes(df, offensive_team, defensive_team, request_data):
     df_specified  = specify_team(df, offensive_team)
     df_specified_def = specify_defense(df, defensive_team)
     
-    similar_df_specified = find_similar_scenarios(df_specified, pd.Series(request_data), 30)
-    similar_df_defensive = find_similar_scenarios(df_specified_def, pd.Series(request_data), 30)
-    similar_df = find_similar_scenarios(df, pd.Series(request_data), 30)
+    similar_df_specified = find_similar_scenarios(df_specified, pd.Series(request_data), 10)
+    similar_df_defensive = find_similar_scenarios(df_specified_def, pd.Series(request_data), 10)
+    similar_df = find_similar_scenarios(df, pd.Series(request_data), 10)
 
     return similar_df, similar_df_specified, similar_df_defensive
 
