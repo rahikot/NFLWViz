@@ -1,5 +1,3 @@
-pip install --upgrade pip
-
 pip install virtualenv
 
 virtualenv cse6242team030fall2023
@@ -14,6 +12,8 @@ else
       .\cse6242team030fall2023\Scripts\activate
 
 fi
+
+pip install --upgrade pip
 
 pip install -r requirements.txt
 
