@@ -499,6 +499,8 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         mainSvg.select("#histogram_svg").remove();
         mainSvg.select('#gv_xaxis').remove();
         mainSvg.select('#gv_yaxis').remove();
+        mainSvg.select('#recommendationrect').remove();
+        mainSvg.select('#rectext').remove();
         const xScale = d3.scaleLinear().domain([0, allTeamsGV.length]).range([0, 300]);
         const yScale = d3.scaleLinear().domain([0, Math.max(d3.max(allTeamsGV), 0.65)]).range([300, 0]);
         const xAxis = d3.axisBottom(xScale).tickFormat(function(d) {return d + 1});
@@ -560,23 +562,23 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         tRProb = specTeamPV["run"] === undefined ? 0 : specTeamPV["run"];
         tPsProb = specTeamPV["pass"] === undefined ? 0 : specTeamPV["pass"];
         
-        atFGyds = allTeamsMY["field_goal"] === undefined ? 0 : allTeamsMY["field_goal"];        
-        atNPyds = allTeamsMY["no_play"] === undefined ? 0 : allTeamsMY["no_play"];
-        atPyds = allTeamsMY["punt"] === undefined ? 0 : allTeamsMY["punt"];
-        atRyds = allTeamsMY["run"] === undefined ? 0 : allTeamsMY["run"];
-        atPsyds = allTeamsMY["pass"] === undefined ? 0 : allTeamsMY["pass"];
+        atFGyds = allTeamsMY["field_goal"] === undefined ? 0 : Math.round(allTeamsMY["field_goal"] * 100) / 100;        
+        atNPyds = allTeamsMY["no_play"] === undefined ? 0 : Math.round(allTeamsMY["no_play"] * 100) / 100;
+        atPyds = allTeamsMY["punt"] === undefined ? 0 : Math.round(allTeamsMY["punt"] * 100) / 100;
+        atRyds = allTeamsMY["run"] === undefined ? 0 : Math.round(allTeamsMY["run"] * 100) / 100;
+        atPsyds = allTeamsMY["pass"] === undefined ? 0 : Math.round(allTeamsMY["pass"] * 100) / 100;
 
-        dFGyds = defTeamMY["field_goal"] === undefined ? 0 : defTeamMY["field_goal"];
-        dNPyds = defTeamMY["no_play"] === undefined ? 0 : defTeamMY["no_play"];
-        dPyds = defTeamMY["punt"] === undefined ? 0 : defTeamMY["punt"];
-        dRyds = defTeamMY["run"] === undefined ? 0 : defTeamMY["run"];
-        dPsyds = defTeamMY["pass"] === undefined ? 0 : defTeamMY["pass"];
+        dFGyds = defTeamMY["field_goal"] === undefined ? 0 : Math.round(defTeamMY["field_goal"] * 100) / 100;
+        dNPyds = defTeamMY["no_play"] === undefined ? 0 : Math.round(defTeamMY["no_play"] * 100) / 100;
+        dPyds = defTeamMY["punt"] === undefined ? 0 : Math.round(defTeamMY["punt"] * 100) / 100;
+        dRyds = defTeamMY["run"] === undefined ? 0 : Math.round(defTeamMY["run"] * 100) / 100;
+        dPsyds = defTeamMY["pass"] === undefined ? 0 : Math.round(defTeamMY["pass"] * 100) / 100;
 
-        tFGyds = specTeamMY["field_goal"] === undefined ? 0 : specTeamMY["field_goal"];
-        tNPyds = specTeamMY["no_play"] === undefined ? 0 : specTeamMY["no_play"];
-        tPyds = specTeamMY["punt"] === undefined ? 0 : specTeamMY["punt"];
-        tRyds = specTeamMY["run"] === undefined ? 0 : specTeamMY["run"];
-        tPsyds = specTeamMY["pass"] === undefined ? 0 : specTeamMY["pass"];
+        tFGyds = specTeamMY["field_goal"] === undefined ? 0 : Math.round(specTeamMY["field_goal"] * 100) / 100;
+        tNPyds = specTeamMY["no_play"] === undefined ? 0 : Math.round(specTeamMY["no_play"] * 100) / 100;
+        tPyds = specTeamMY["punt"] === undefined ? 0 : Math.round(specTeamMY["punt"] * 100) / 100;
+        tRyds = specTeamMY["run"] === undefined ? 0 : Math.round(specTeamMY["run"] * 100) / 100;
+        tPsyds = specTeamMY["pass"] === undefined ? 0 : Math.round(specTeamMY["pass"] * 100) / 100;
 
         histogram_data = [
             {
@@ -733,6 +735,47 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
                 .attr('id', "dangertext")
                 .text("This is a dangerous situation.");
         }
+
+        recommendation = data["recommendation"];
+        console.log(typeof recommendation);
+        if (recommendation !== String) {
+            action = recommendation[0];
+            direction = "";
+            actionDistance = "";
+            if (action === "run" || action == "pass") {
+                direction = `${recommendation[1]}`;
+                actionDistance = `for ${recommendation[2]} yds`;
+            }
+            if (recommendation[2] == 0) {
+                actionDistance = "";
+            }
+            recrect = mainSvg.append('rect')
+                .attr("transform", "translate(0, 10)")
+                .attr("width", 250)
+                .attr("height", 100)
+                .attr('id', "recommendationrect")   
+                .attr("fill", "green");
+            rectext = mainSvg.append('text')
+                .attr("transform", "translate(20, 60)")
+                .style("font-size", "14px")
+                .attr("font-weight", "700")
+                .attr('id', "rectext")
+                .text(`Recommendation:  ${action} ${direction} ${actionDistance}`);
+        } else {
+            recrect = mainSvg.append('rect')
+                .attr("transform", "translate(0, 10)")
+                .attr("width", 250)
+                .attr("height", 100)
+                .attr('id', "recommendationrect")   
+                .attr("fill", "green");
+            rectext = mainSvg.append('text')
+                .attr("transform", "translate(20, 60)")
+                .style("font-size", "14px")
+                .attr("font-weight", "700")
+                .attr('id', "rectext")
+                .text(`Recommendation:  ${recommendation}`);
+        }
+
     })
     .catch(error => {
         console.error("error:", error);
@@ -741,7 +784,7 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
 
 function setUpGraphs(mainSvg, width) {
     // gower chart
-    const xScale = d3.scaleLinear().domain([0, 99]).range([0, 300]);
+    const xScale = d3.scaleLinear().domain([0, 10]).range([0, 300]);
     const yScale = d3.scaleLinear().domain([0, 1]).range([300, 0]);
     const xAxis = d3.axisBottom(xScale).tickFormat(function(d) {return d + 1});
     const yAxis = d3.axisLeft(yScale).ticks(10);
