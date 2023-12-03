@@ -340,7 +340,7 @@ function addMarkers(mainSvg, playData, homeTeam, awayTeam) {
     } else {
         if (absoluteYardNumber < 60) {
             firstDownMarker = absoluteYardNumber - yardsToGo
-        } else if (absoluteYardNumber === 60 && possessionTeam === homeTeam) {
+        } else if (absoluteYardNumber === 60 && possessionTeam === awayTeam) {
             firstDownMarker = absoluteYardNumber - yardsToGo
         } else if (absoluteYardNumber === 60 && possessionTeam === homeTeam) {
             firstDownMarker = absoluteYardNumber + yardsToGo
