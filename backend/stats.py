@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from similar_plays import recommend_play, find_similar_scenarios
 from collections import Counter
+import math
 def specify_team(df, team):
     return df.query(f'(home_team == "{team}" | away_team == "{team}") & defteam != "{team}"').reset_index().drop("index", axis=1)
 
@@ -59,9 +60,9 @@ def notify_danger(similar_df_specified, play_data):
     total_count = sum(counted.values())
     
     proportion = total_penalty_sack / total_count if total_count > 0 else 0
-    urgency = ((int(float(quarter)) + int(float(down))) / 2) / (1 + abs(int(float(VisitorScore)) - int(float(homeScore))))
-    if urgency > 1: 
-        return True 
+    urgency = math.sqrt(int(float(quarter)) * int(float(down))) / (1 + abs(int(float(VisitorScore)) - int(float(homeScore))))
+    if urgency < 2: 
+        return False 
     return proportion > threshold[offensive_team]
 
 

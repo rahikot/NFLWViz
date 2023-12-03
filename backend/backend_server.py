@@ -14,14 +14,14 @@ CORS(app)
 def get_play_details():
 
     # Getting JSON data from the request
-    df = pd.read_csv("backend/data/plays.csv", index_col=0)
+    df = pd.read_csv("data/plays.csv", index_col=0)
     print("Initialized")
     request_data = request.args.to_dict()
     offensive_team = request_data["offensiveTeam"]
     defensive_team = request_data["defensiveTeam"]
 
     df = df[df["down"] == int(request_data["down"])]
-    print("Finished Processing")
+
     #If 4th down is invoked
     if int(request_data["down"]) == 4:
         df = df[df["down"] == 4]
