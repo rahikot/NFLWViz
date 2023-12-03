@@ -927,7 +927,7 @@ function setUpGraphs(mainSvg, width) {
         .on("mouseout", function(){return tooltip2.style("visibility", "hidden");}); 
 
     mainSvg.append('rect')
-        .attr('transform', 'translate(1040, 800)')
+        .attr('transform', 'translate(990, 800)')
         .attr('fill', 'blue')
         .attr('width', 10)
         .attr('height', 10);
@@ -939,13 +939,13 @@ function setUpGraphs(mainSvg, width) {
         .attr('height', 10);
     
     mainSvg.append('rect')
-        .attr('transform', 'translate(1195, 800)')
+        .attr('transform', 'translate(1225, 800)')
         .attr('fill', 'green')
         .attr('width', 10)
         .attr('height', 10);
     
     mainSvg.append('text')
-        .attr('transform', 'translate(1055, 807)')
+        .attr('transform', 'translate(1005, 807)')
         .style('font-size', '9px')
         .text("All Teams vs All Teams");
     
@@ -955,7 +955,7 @@ function setUpGraphs(mainSvg, width) {
         .text("All Teams vs Defensive Team");
 
     mainSvg.append('text')
-        .attr('transform', 'translate(1210, 807)')
+        .attr('transform', 'translate(1240, 807)')
         .style('font-size', '9px')
         .text("Offensive Team vs All Teams");
 }
