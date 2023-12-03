@@ -42,3 +42,6 @@ Our machine learning models include a LightGBM model to predict the defensive pl
     c) run labels_pbps.py to (noisily) annotate the nfl_pbps dataset with defense formation predictions from LightGBM inference
 
     d) start Flask server on ```localhost:5000```
+
+
+Note: Please also see the formatted version of this readme file at README.md.
