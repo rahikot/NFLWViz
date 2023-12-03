@@ -738,7 +738,20 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
 
         recommendation = data["recommendation"];
         console.log(typeof recommendation);
-        if (recommendation !== String) {
+        if (typeof recommendation === 'string' || recommendation instanceof String) {
+            recrect = mainSvg.append('rect')
+                .attr("transform", "translate(0, 10)")
+                .attr("width", 250)
+                .attr("height", 100)
+                .attr('id', "recommendationrect")   
+                .attr("fill", "green");
+            rectext = mainSvg.append('text')
+                .attr("transform", "translate(20, 60)")
+                .style("font-size", "14px")
+                .attr("font-weight", "700")
+                .attr('id', "rectext")
+                .text(`Recommendation:  ${recommendation}`);
+        } else {
             action = recommendation[0];
             direction = "";
             actionDistance = "";
@@ -761,19 +774,6 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
                 .attr("font-weight", "700")
                 .attr('id', "rectext")
                 .text(`Recommendation:  ${action} ${direction} ${actionDistance}`);
-        } else {
-            recrect = mainSvg.append('rect')
-                .attr("transform", "translate(0, 10)")
-                .attr("width", 250)
-                .attr("height", 100)
-                .attr('id', "recommendationrect")   
-                .attr("fill", "green");
-            rectext = mainSvg.append('text')
-                .attr("transform", "translate(20, 60)")
-                .style("font-size", "14px")
-                .attr("font-weight", "700")
-                .attr('id', "rectext")
-                .text(`Recommendation:  ${recommendation}`);
         }
 
     })
