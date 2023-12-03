@@ -660,14 +660,14 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .attr("class", "x label")
             .attr("text-anchor", "end")
             .attr("x", 1175)
-            .attr("y", 790)
+            .attr("y", 793)
             .text("Plays");
 
         mainSvg.append('text')
             .attr("class", "x label")
             .attr("text-anchor", "end")
             .attr("transform", "translate(918, 525) rotate(-90)")
-            .text("Probability");
+            .text("Proportion of Plays");
 
         const actionGroup = histogramSvg.selectAll(".action-group")
                             .data(histogram_data)
@@ -723,13 +723,15 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
 
         if (notifyDanger) { 
             dangerrect = mainSvg.append('rect')
-                .attr("transform", "translate(635, 10)")
+                .attr("transform", "translate(620, 10)")
                 .attr("width", 250)
                 .attr("height", 100)
                 .attr('id', "dangerrect")   
-                .attr("fill", "red");
+                .attr("fill", "LightPink")
+                .attr("rx", 10)
+                .attr("ry", 10);
             dangertext = mainSvg.append('text')
-                .attr("transform", "translate(675, 60)")
+                .attr("transform", "translate(660, 65)")
                 .style("font-size", "14px")
                 .attr("font-weight", "700")
                 .attr('id', "dangertext")
@@ -737,27 +739,29 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         }
 
         recommendation = data["recommendation"];
-        console.log(typeof recommendation);
         if (typeof recommendation === 'string' || recommendation instanceof String) {
             recrect = mainSvg.append('rect')
                 .attr("transform", "translate(0, 10)")
                 .attr("width", 250)
                 .attr("height", 100)
-                .attr('id', "recommendationrect")   
-                .attr("fill", "green");
+                .attr('id', "recommendationrect")
+                .attr("fill", "LightGreen")
+                .attr("rx", 10) // Set the x-radius for rounded corners
+                .attr("ry", 10);
+
             rectext = mainSvg.append('text')
-                .attr("transform", "translate(20, 60)")
+                .attr("transform", "translate(0, 25)")
                 .style("font-size", "14px")
                 .attr("font-weight", "700")
                 .attr('id', "rectext")
-                .text(`Recommendation:  ${recommendation}`);
+                .text(`Model Recommendation:  ${recommendation}`);
         } else {
             action = recommendation[0];
             direction = "";
             actionDistance = "";
             if (action === "run" || action == "pass") {
                 direction = `${recommendation[1]}`;
-                actionDistance = `for ${recommendation[2]} yds`;
+                actionDistance = `${recommendation[2].toFixed(2)} yds`;
             }
             if (recommendation[2] == 0) {
                 actionDistance = "";
@@ -766,14 +770,57 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
                 .attr("transform", "translate(0, 10)")
                 .attr("width", 250)
                 .attr("height", 100)
-                .attr('id', "recommendationrect")   
-                .attr("fill", "green");
-            rectext = mainSvg.append('text')
-                .attr("transform", "translate(20, 60)")
+                .attr('id', "recommendationrect")
+                .attr("fill", "LightGreen")
+                .attr("rx", 10)
+                .attr("ry", 10);
+            // rectext = mainSvg.append('text')
+            //     .attr("transform", "translate(20, 60)")
+            //     .style("font-size", "14px")
+            //     .attr("font-weight", "700")
+            //     .attr('id', "rectext")
+            //     .text(`Recommendation:  ${action} ${direction} ${actionDistance}`);
+
+            mainSvg.append('text')
+                .attr("transform", "translate(5, 25)")
                 .style("font-size", "14px")
                 .attr("font-weight", "700")
                 .attr('id', "rectext")
-                .text(`Recommendation:  ${action} ${direction} ${actionDistance}`);
+                .style("text-decoration", "underline")
+                .text(`Model Recommendation`);
+
+
+            mainSvg.append('text')
+                .attr("transform", "translate(5, 45)")
+                .style("font-size", "14px")
+                .attr("font-weight", "700")
+                .attr('id', "rectext")
+                .text(`Play Type: ${action.charAt(0).toUpperCase() + action.slice(1)}`);
+
+            mainSvg.append('text')
+                .attr("transform", "translate(5, 65)")
+                .style("font-size", "14px")
+                .attr("font-weight", "700")
+                .attr('id', "rectext")
+                .text(`Direction: ${direction.charAt(0).toUpperCase() + direction.slice(1)}`);
+
+
+            mainSvg.append('text')
+                .attr("transform", "translate(5, 85)")
+                .style("font-size", "14px")
+                .attr("font-weight", "700")
+                .attr('id', "rectext")
+                .text(`Expected Gain: ${actionDistance} `);
+
+            mainSvg.append('text')
+                .attr("transform", "translate(5, 105)")
+                .style("font-size", "14px")
+                .attr("font-weight", "700")
+                .attr('id', "rectext")
+                .text(`Actual Play Gain: ${Number(allPlayData.playResult).toFixed(2)}`);
+
+
+
         }
 
     })
@@ -807,7 +854,7 @@ function setUpGraphs(mainSvg, width) {
         .call(yAxis);
     
     mainSvg.append('text')
-        .attr('transform', 'translate(1045, 25)')
+        .attr('transform', 'translate(1060, 0)')
         .attr('id', 'gv_text')
         .text('Gower Values')
         .on("mouseover", function(d){tooltip2.text(`Gower Values: This chart is the similarity distance of the plays that were evaluated \n
@@ -855,7 +902,7 @@ function setUpGraphs(mainSvg, width) {
         .attr("class", "x label")
         .attr("text-anchor", "end")
         .attr("x", 1185)
-        .attr("y", 333)
+        .attr("y", 340)
         .text("Nth Most Similar Play");
 
     mainSvg.append('text')
@@ -866,7 +913,7 @@ function setUpGraphs(mainSvg, width) {
 
     // histogram    
     mainSvg.append('text')
-        .attr('transform', 'translate(1088, 428)')
+        .attr('transform', 'translate(1088, 400)')
         .text('Historical Proportions')
         .on("mouseover", function(d){tooltip2.text(`Historical Proportions: This chart shows a proportion as to what action was taken \n
                                                     in similar plays. Hovering over a bar shows the mean yardage of when that action was \n
