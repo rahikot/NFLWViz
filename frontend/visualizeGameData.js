@@ -908,7 +908,7 @@ function setUpGraphs(mainSvg, width) {
     mainSvg.append('text')
         .attr("class", "x label")
         .attr("text-anchor", "end")
-        .attr("transform", "translate(918, 137) rotate(-90)")
+        .attr("transform", "translate(910, 110) rotate(-90)")
         .text("Gower Value");
 
     // histogram    
