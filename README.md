@@ -19,8 +19,7 @@ Our machine learning models include a LightGBM model to predict the defensive pl
 ## Installation & Execution
 
 ## Frontend
-1. Download ```week1.csv``` from https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data?select=week1.csv and save ```week1.csv``` in the ```./frontend``` directory.
-2. From the ```./``` directory, run ```./frontend.sh```. This script file performs the following tasks:
+1. From the ```./``` directory, run ```./frontend.sh```. This script file performs the following tasks:
 
     a) starts the frontend http server on ```localhost:8000```
 
