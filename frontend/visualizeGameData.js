@@ -776,7 +776,7 @@ function setUpGraphs(mainSvg, width) {
         .on("mouseout", function(){return tooltip2.style("visibility", "hidden");}); 
 
     mainSvg.append('rect')
-        .attr('transform', 'translate(1225, 50)')
+        .attr('transform', 'translate(1225, 30)')
         .attr('fill', 'blue')
         .attr('width', 10)
         .attr('height', 10);
