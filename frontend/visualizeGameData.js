@@ -886,17 +886,17 @@ function setUpGraphs(mainSvg, width) {
     mainSvg.append('text')
         .attr('transform', 'translate(1238, 38)')
         .style('font-size', '9px')
-        .text("All Teams");
+        .text("All Teams vs All Teams");
     
     mainSvg.append('text')
         .attr('transform', 'translate(1238, 58)')
         .style('font-size', '9px')
-        .text("Defense Specified");
+        .text("All Teams vs Defensive Team");
 
     mainSvg.append('text')
         .attr('transform', 'translate(1238, 78)')
         .style('font-size', '9px')
-        .text("Specified Team");
+        .text("Offensive Team vs All Teams");
 
     mainSvg.append('text')
         .attr("class", "x label")
@@ -947,17 +947,17 @@ function setUpGraphs(mainSvg, width) {
     mainSvg.append('text')
         .attr('transform', 'translate(1055, 807)')
         .style('font-size', '9px')
-        .text("All Teams");
+        .text("All Teams vs All Teams");
     
     mainSvg.append('text')
         .attr('transform', 'translate(1115, 807)')
         .style('font-size', '9px')
-        .text("Defense Specified");
+        .text("All Teams vs Defensive Team");
 
     mainSvg.append('text')
         .attr('transform', 'translate(1210, 807)')
         .style('font-size', '9px')
-        .text("Specified Team");
+        .text("Offensive Team vs All Teams");
 }
 
 var firstChange = false;
