@@ -527,8 +527,8 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         .attr('transform', 'translate(950, 0)')
         .attr('d', line)
         .attr('fill', 'none')
-        .attr('stroke', 'green')
-        .attr('id', "greenline")
+        .attr('stroke', 'red')
+        .attr('id', "redline")
         .attr('stroke-width', '4px');
 
         mainSvg.append('path')
@@ -536,8 +536,8 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         .attr('transform', 'translate(950, 0)')
         .attr('d', line)
         .attr('fill', 'none')
-        .attr('stroke', 'red')
-        .attr('id', "redline")
+        .attr('stroke', 'green')
+        .attr('id', "greenline")
         .attr('stroke-width', '4px');
 
         // histogram
@@ -638,7 +638,7 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         const height = 400 - margin.top - margin.bottom;
 
         const histogramSvg = mainSvg.append("g")
-            .attr("transform", `translate(950, 350)`)
+            .attr("transform", `translate(950, 400)`)
             .attr('id', "histogram_svg");
 
         const x0 = d3.scaleBand().range([0, width]).paddingInner(0.1);
@@ -653,6 +653,19 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .attr("transform", `translate(0, ${height})`)
             .call(d3.axisBottom(x0));
         histogramSvg.append("g").call(d3.axisLeft(y));
+
+        mainSvg.append('text')
+            .attr("class", "x label")
+            .attr("text-anchor", "end")
+            .attr("x", 1175)
+            .attr("y", 790)
+            .text("Games");
+
+        mainSvg.append('text')
+            .attr("class", "x label")
+            .attr("text-anchor", "end")
+            .attr("transform", "translate(918, 525) rotate(-90)")
+            .text("Probability");
 
         const actionGroup = histogramSvg.selectAll(".action-group")
                             .data(histogram_data)
@@ -685,11 +698,11 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .enter().append("rect")
             .attr("class", "bar defense-specific")
             .style("fill", "green")
-            .attr("x", d => x1('dProb'))
-            .attr("y", d => y(d.dProb))
+            .attr("x", d => x1('tProb'))
+            .attr("y", d => y(d.tProb))
             .attr("width", x1.bandwidth())
-            .attr("height", d => height - y(d.dProb))
-            .on("mouseover", function(d){tooltip.text(`Mean Yards: ${d.dyds}`); return tooltip.style("visibility", "visible");})
+            .attr("height", d => height - y(d.tProb))
+            .on("mouseover", function(d){tooltip.text(`Mean Yards: ${d.tyds}`); return tooltip.style("visibility", "visible");})
             .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
             .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 
@@ -698,11 +711,11 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .enter().append("rect")
             .attr("class", "bar team-specific")
             .style("fill", "red")
-            .attr("x", d => x1('tProb'))
-            .attr("y", d => y(d.tProb))
+            .attr("x", d => x1('dProb'))
+            .attr("y", d => y(d.dProb))
             .attr("width", x1.bandwidth())
-            .attr("height", d => height - y(d.tProb))
-            .on("mouseover", function(d){tooltip.text(`Mean Yards: ${d.tyds}`); return tooltip.style("visibility", "visible");})
+            .attr("height", d => height - y(d.dProb))
+            .on("mouseover", function(d){tooltip.text(`Mean Yards: ${d.dyds}`); return tooltip.style("visibility", "visible");})
             .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
             .on("mouseout", function(){return tooltip.style("visibility", "hidden");});              
 
@@ -733,6 +746,13 @@ function setUpGraphs(mainSvg, width) {
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale).ticks(10);
 
+    var tooltip2 = d3.select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden")
+        .style("background", "white");
+
     mainSvg.append('g')
         .attr('transform', 'translate(950, 300)')
         .attr('id', 'gv_xaxis')
@@ -746,76 +766,106 @@ function setUpGraphs(mainSvg, width) {
     mainSvg.append('text')
         .attr('transform', 'translate(1045, 25)')
         .attr('id', 'gv_text')
-        .text('Gower Values');
+        .text('Gower Values')
+        .on("mouseover", function(d){tooltip2.text(`Gower Values: This chart is the similarity distance of the plays that were evaluated \n
+                                                    in the All Teams, Specific Team, and Defense Specific play subsets to compare against \n
+                                                    the current play. A lower number indicates more similarity.`); 
+                                                    return tooltip2.style("visibility", "visible");
+                                                })
+        .on("mousemove", function(){return tooltip2.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+        .on("mouseout", function(){return tooltip2.style("visibility", "hidden");}); 
 
     mainSvg.append('rect')
-        .attr('transform', 'translate(1175, 60)')
+        .attr('transform', 'translate(1225, 50)')
         .attr('fill', 'blue')
         .attr('width', 10)
         .attr('height', 10);
 
     mainSvg.append('rect')
-        .attr('transform', 'translate(1175, 80)')
+        .attr('transform', 'translate(1225, 50)')
         .attr('fill', 'red')
         .attr('width', 10)
         .attr('height', 10);
     
     mainSvg.append('rect')
-        .attr('transform', 'translate(1175, 100)')
+        .attr('transform', 'translate(1225, 70)')
         .attr('fill', 'green')
         .attr('width', 10)
         .attr('height', 10);
     
     mainSvg.append('text')
-        .attr('transform', 'translate(1188, 68)')
+        .attr('transform', 'translate(1238, 38)')
         .style('font-size', '9px')
         .text("All Teams");
     
     mainSvg.append('text')
-        .attr('transform', 'translate(1188, 88)')
+        .attr('transform', 'translate(1238, 58)')
         .style('font-size', '9px')
         .text("Defense Specified");
 
     mainSvg.append('text')
-        .attr('transform', 'translate(1188, 108)')
+        .attr('transform', 'translate(1238, 78)')
         .style('font-size', '9px')
         .text("Specified Team");
 
+    mainSvg.append('text')
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("x", 1115)
+        .attr("y", 333)
+        .text("Games");
+
+    mainSvg.append('text')
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("transform", "translate(918, 137) rotate(-90)")
+        .text("Gower Value");
+
     // histogram    
     mainSvg.append('text')
-        .attr('transform', 'translate(1100, 748)')
-        .text('Success Probabilities');
+        .attr('transform', 'translate(1088, 428)')
+        .text('Success Probabilities')
+        .on("mouseover", function(d){tooltip2.text(`Success Probabilities: This chart shows a proportion that play play has been run \n
+                                                    in similar plays. Hovering over a bar shows the mean yardage of when that play was \n
+                                                    run historically, if applicable. All Teams chooses similar plays among all the \n
+                                                    teams. Specific Team looks at similar plays where teh same offensive team was involved. \n
+                                                    Defense Specific looks at similar plays where the same defensive team was involved (but \n
+                                                    any offensive team).`);
+                                                    return tooltip2.style("visibility", "visible");
+                                                })
+        .on("mousemove", function(){return tooltip2.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+        .on("mouseout", function(){return tooltip2.style("visibility", "hidden");}); 
 
     mainSvg.append('rect')
-        .attr('transform', 'translate(1040, 760)')
+        .attr('transform', 'translate(1040, 800)')
         .attr('fill', 'blue')
         .attr('width', 10)
         .attr('height', 10);
 
     mainSvg.append('rect')
-        .attr('transform', 'translate(1100, 760)')
+        .attr('transform', 'translate(1100, 800)')
         .attr('fill', 'red')
         .attr('width', 10)
         .attr('height', 10);
     
     mainSvg.append('rect')
-        .attr('transform', 'translate(1195, 760)')
+        .attr('transform', 'translate(1195, 800)')
         .attr('fill', 'green')
         .attr('width', 10)
         .attr('height', 10);
     
     mainSvg.append('text')
-        .attr('transform', 'translate(1055, 767)')
+        .attr('transform', 'translate(1055, 807)')
         .style('font-size', '9px')
         .text("All Teams");
     
     mainSvg.append('text')
-        .attr('transform', 'translate(1115, 767)')
+        .attr('transform', 'translate(1115, 807)')
         .style('font-size', '9px')
         .text("Defense Specified");
 
     mainSvg.append('text')
-        .attr('transform', 'translate(1210, 767)')
+        .attr('transform', 'translate(1210, 807)')
         .style('font-size', '9px')
         .text("Specified Team");
 }
