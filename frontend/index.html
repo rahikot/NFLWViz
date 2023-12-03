@@ -36,7 +36,7 @@
   <div id="output", style="position: absolute; justify-self: center;"></div>
 
   <script>
-
+d3.select("#playNumber").style("visibility", "hidden")
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     const width = 2500 - margin.left - margin.right;
     const height = 960 - margin.top - margin.bottom;
@@ -302,6 +302,7 @@ const margin = { top: 20, right: 20, bottom: 20, left: 20 };
           mainSvg.selectAll(".circle, .circle-label").remove();
           addMarkers(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
           d3.select("#playNumber").text(playDatabyId[sliderMapping[value]].playDescription)
+          d3.select("#playNumber").style("visibility", "visible")
         
           football.style("display", "block")
           updateScoreBoard(mainSvg, playDatabyId[sliderMapping[value]], gameDatabyId[selectedGameId].homeTeamAbbr, gameDatabyId[selectedGameId].visitorTeamAbbr)
