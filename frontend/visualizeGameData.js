@@ -501,7 +501,7 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
         mainSvg.select('#gv_yaxis').remove();
         const xScale = d3.scaleLinear().domain([0, allTeamsGV.length]).range([0, 300]);
         const yScale = d3.scaleLinear().domain([0, Math.max(d3.max(allTeamsGV), 0.65)]).range([300, 0]);
-        const xAxis = d3.axisBottom(xScale);
+        const xAxis = d3.axisBottom(xScale).tickFormat(function(d) {return d + 1});
         const yAxis = d3.axisLeft(yScale).ticks(10);
         mainSvg.append('g')
             .attr('transform', 'translate(950, 300)')
@@ -659,7 +659,7 @@ function visualizeStats(allPlayData, playNumber, mainSvg, interval, homeTeam, aw
             .attr("text-anchor", "end")
             .attr("x", 1175)
             .attr("y", 790)
-            .text("Games");
+            .text("Plays");
 
         mainSvg.append('text')
             .attr("class", "x label")
@@ -743,7 +743,7 @@ function setUpGraphs(mainSvg, width) {
     // gower chart
     const xScale = d3.scaleLinear().domain([0, 99]).range([0, 300]);
     const yScale = d3.scaleLinear().domain([0, 1]).range([300, 0]);
-    const xAxis = d3.axisBottom(xScale);
+    const xAxis = d3.axisBottom(xScale).tickFormat(function(d) {return d + 1});
     const yAxis = d3.axisLeft(yScale).ticks(10);
 
     var tooltip2 = d3.select("body")
@@ -811,9 +811,9 @@ function setUpGraphs(mainSvg, width) {
     mainSvg.append('text')
         .attr("class", "x label")
         .attr("text-anchor", "end")
-        .attr("x", 1115)
+        .attr("x", 1185)
         .attr("y", 333)
-        .text("Games");
+        .text("Nth Most Similar Play");
 
     mainSvg.append('text')
         .attr("class", "x label")
@@ -824,11 +824,11 @@ function setUpGraphs(mainSvg, width) {
     // histogram    
     mainSvg.append('text')
         .attr('transform', 'translate(1088, 428)')
-        .text('Success Probabilities')
-        .on("mouseover", function(d){tooltip2.text(`Success Probabilities: This chart shows a proportion that play play has been run \n
-                                                    in similar plays. Hovering over a bar shows the mean yardage of when that play was \n
+        .text('Historical Proportions')
+        .on("mouseover", function(d){tooltip2.text(`Historical Proportions: This chart shows a proportion as to what action was taken \n
+                                                    in similar plays. Hovering over a bar shows the mean yardage of when that action was \n
                                                     run historically, if applicable. All Teams chooses similar plays among all the \n
-                                                    teams. Specific Team looks at similar plays where teh same offensive team was involved. \n
+                                                    teams. Specific Team looks at similar plays where the same offensive team was involved. \n
                                                     Defense Specific looks at similar plays where the same defensive team was involved (but \n
                                                     any offensive team).`);
                                                     return tooltip2.style("visibility", "visible");
